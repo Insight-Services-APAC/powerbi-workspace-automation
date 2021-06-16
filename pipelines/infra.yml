@@ -1,0 +1,44 @@
+jobs:
+# - job: infrastructure
+#   displayName: Infrastructure Deploy
+#   pool:
+#     vmImage: ubuntu-latest
+#   variables:
+#     azSubscription: sp-apim-ado
+
+#   steps:
+#   - task: AzureCLI@2
+#     displayName: AZ CLI - Bicep Deploy
+#     inputs:
+#       azureSubscription: ${{ variables.azSubscription }}
+#       scriptType: 'bash'
+#       scriptPath: $(Build.SourcesDirectory)/infra/deploy.sh
+
+- job:
+  # dependsOn: infrastructure
+  # condition: succeeded()
+  displayName: FunctionApp Build and Deploy
+  pool:
+    vmImage: 'windows-latest'
+
+  variables:
+    buildConfiguration: 'Release'
+    azSubscription: sp-apim-ado
+
+  steps:
+  - task: DotNetCoreCLI@2
+    displayName: DotNet Publish
+    inputs:
+      command: publish
+      publishWebProjects: False
+      arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+      projects:  $(Build.SourcesDirectory)/src/Insight.PowerBI.sln
+      zipAfterPublish: True
+
+  - task: AzureFunctionApp@1
+    displayName: FunctionApp Deploy
+    inputs:
+      azureSubscription: ${{ variables.azSubscription }}
+      appType: functionApp
+      appName: hss-syd-dev-fun-powerbi
+      package: $(System.ArtifactsDirectory)/**/*.zip

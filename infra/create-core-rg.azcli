@@ -1,0 +1,19 @@
+secret=$1
+
+location=australiaeast
+resourceGroup=hss-syd-arg-powerbi
+keyVaultName=hss-syd-key-powerbi
+apimName=hss-syd-apim-powerbi
+
+az group create -n $resourceGroup -l $location
+az keyvault create -n $keyVaultName -l $location -g $resourceGroup
+if [[ -n "${secret}" ]]
+then
+    az keyvault secret set --name "PBI-API-SP" --vault-name $keyVaultName --value $spSecret
+fi
+az apim create --name $apimName \
+    --publisher-email "paul.smithdale@insight.com" --publisher-name "Paul Smithdale" \
+    -g $resourceGroup -l $location \
+    --sku-name "Developer"
+
+# az cosmos create sql
