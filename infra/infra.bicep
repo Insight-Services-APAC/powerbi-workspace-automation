@@ -88,7 +88,7 @@ resource funcApp 'Microsoft.Web/sites@2021-01-01' = {
           value: cosmosDbName
         }
         {
-          name: 'cosmosDBConnection'
+          name: 'CosmosDBConnection'
           value: listConnectionStrings(cosmosDb.id, cosmosDbSql.apiVersion).connectionStrings[0].connectionString
         }
         {
@@ -108,8 +108,12 @@ resource funcApp 'Microsoft.Web/sites@2021-01-01' = {
           value: '1'
         }
         {
-          name: 'subscriptionCollectionName'
-
+          name: 'SubscriptionContainerName'
+          value: 'Subscription'
+        }
+        {
+          name: 'WorkspaceContainerName'
+          value: 'Workspaces'
         }
       ]
     }
@@ -195,7 +199,7 @@ resource cosmosDbSql 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-04
   }
 }
 
-resource cosmosCollection 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-04-15' = {
+resource subscriptionContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-04-15' = {
   name: '${cosmosName}/${cosmosDbName}/Subscriptions'
   properties: {
     resource: {
@@ -203,6 +207,20 @@ resource cosmosCollection 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/co
       partitionKey:{
         paths: [
           '/id'
+        ]
+      }
+    }
+  }
+}
+
+resource workspaceContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-04-15' = {
+  name: '${cosmosName}/${cosmosDbName}/Workspaces'
+  properties: {
+    resource: {
+      id: 'Workspaces'
+      partitionKey:{
+        paths: [
+          '/HSPName'
         ]
       }
     }

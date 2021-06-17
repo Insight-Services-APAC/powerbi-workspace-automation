@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Insight.PowerBI.Core.Interfaces
 {
     public interface ICosmosDbService
     {
-        Task GetItemsAsync();
-        void WriteItem<T>(IList<T> items);
+        Task<IList<T>> GetItemsAsync<T>(string containerId, string query = null);
+        Task WriteItemsAsync<T>(string containerId, IList<T> items, Func<T, string> partitionFunc);
     }
 }
