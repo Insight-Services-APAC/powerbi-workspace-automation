@@ -223,6 +223,7 @@ resource workspaceContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/
           '/HSPName'
         ]
       }
+      defaultTtl: 2592000
     }
   }
 }
