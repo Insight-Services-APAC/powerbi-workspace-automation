@@ -1,0 +1,21 @@
+PUT http://localhost:7071/api/WorkspaceCreate?id=WACHS
+content-type: application/json
+
+{
+    "workSpaceName": "new"
+}
+###
+
+POST http://localhost:7071/api/WorkspaceCreate?id=WACHS
+content-type: application/json
+
+{
+    "workSpaceName": "Paul"
+}
+###
+GET http://localhost:7071/api/WorkspaceList?id=WACHS
+###
+GET https://hss-syd-dev-api-powerbi.azure-api.net/hsp/WorkspaceList
+Ocp-Apim-Subscription-Key: 
+###
+http://localhost:7071/api/SubscriptionsList
