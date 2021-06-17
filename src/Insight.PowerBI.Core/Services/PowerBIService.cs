@@ -157,6 +157,29 @@ namespace Insight.PowerBI.Core.Services
 
         }
 
+        public async Task<IList<object>> GetActivityEventsAsync()
+        {
+            try
+            {
+                //var startDate = DateTime.UtcNow.AddHours(8).ToString("yyyy-MM-ddTHH:mm:ssZ");
+                //var endDate = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+                var startDate = "2021-06-10T01:00:00";
+                var endDate = "2021-06-10T23:00:00";
+                var client = await GetPowerBIClientAsync();
+                var activities =await  client.Admin.GetActivityEventsAsync($"'{startDate}'", $"'{endDate}'");
+                return activities.ActivityEventEntities;
+            }
+            catch (HttpOperationException ex)
+            {
+                throw HandleHttpOperationException(ex);
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
+
         private Exception HandleHttpOperationException(HttpOperationException ex, [CallerMemberName] string memberName = "PowerBIService")
         {
             logger.LogError(ex, $"{memberName} failed");

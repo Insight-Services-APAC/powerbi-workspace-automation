@@ -25,8 +25,9 @@ namespace Insight.PBIAutomation.Triggers
             ILogger log)
         {
             log.LogInformation("WorkspaceList activated.");
-            await WorkspaceExtract.WorkspaceETLAsync();
-            return new OkResult();
+            //await WorkspaceExtract.WorkspaceETLAsync();
+            var a = await WorkspaceExtract.ActivitiesAsync();
+            return new OkObjectResult(a);
         }
     }
 }

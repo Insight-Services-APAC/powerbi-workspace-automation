@@ -44,5 +44,10 @@ namespace Insight.PowerBI.Core.Services
                 outputGroups,
                 (HSPPowerBIGroup x) => x.HSPName);
         }
+
+        public async Task<IList<object>> ActivitiesAsync()
+        {
+            return await powerBIService.GetActivityEventsAsync();
+        }
     }
 }

@@ -10,5 +10,6 @@ namespace Insight.PowerBI.Core.Interfaces
         Task<Group> CreateGroupAsync(string workspaceName, string aadGroupName = null);
         Task UpdateGroupAsync(string workspaceName, string aadGroupName);
         Task<IList<Group>> GetGroupsAllExpandedAsync();
+        Task<IList<object>> GetActivityEventsAsync();
     }
 }
