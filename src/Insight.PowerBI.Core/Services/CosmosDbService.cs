@@ -1,7 +1,13 @@
 ﻿using Insight.PowerBI.Core.Interfaces;
+using Insight.PowerBI.Core.Models;
+using Insight.PowerBI.Core.Options;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,37 +16,52 @@ namespace Insight.PowerBI.Core.Services
 
     public class CosmosDbService : ICosmosDbService
     {
-        private const string DatabaseId = "PBIAutomate";
-        private const string ContainerId = "Subscriptions";
+        private string DatabaseId => options.CosmosDbName;
         private readonly CosmosClient cosmosClient;
+        private readonly ILogger<CosmosDbService> logger;
+        private readonly CosmosDbOptions options;
 
-        public CosmosDbService(CosmosClient cosmosClient)
+        public CosmosDbService(
+            CosmosClient cosmosClient, 
+            IOptions<CosmosDbOptions> options, 
+            ILogger<CosmosDbService> logger)
         {
             this.cosmosClient = cosmosClient;
+            this.logger = logger;
+            this.options = options.Value;
         }
 
-        public void WriteItem<T>(IList<T> items)
-        {
-            var container = cosmosClient.GetContainer(DatabaseId, ContainerId);
-            foreach (var item in items)
-                container.CreateItemAsync(item);
 
+        public async Task WriteItemsAsync<T>(string containerId, IList<T> items, Func<T, string> partitionFunc)
+        {
+            try
+            {
+                var container = cosmosClient.GetContainer(DatabaseId, containerId);
+                foreach (var item in items)
+                {
+                    await container.UpsertItemAsync<T>(item, new PartitionKey(partitionFunc(item)));
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("CosmosDbUpsertFailed", ex);
+            }
         }
 
-        public async Task GetItemsAsync()
+        public async Task<IList<T>> GetItemsAsync<T>(string containerId, string query = null)
         {
-            var container = cosmosClient.GetContainer(DatabaseId, ContainerId);
-            using (var iterator = container.GetItemQueryIterator<dynamic>())
+            var container = cosmosClient.GetContainer(DatabaseId, containerId);
+            var result = new List<T>();
+            using (var iterator = container.GetItemQueryIterator<T>(query))
             {
                 while (iterator.HasMoreResults)
                 {
                     var response = await iterator.ReadNextAsync();
-                    foreach (var item in response)
-                    {
-                        Console.WriteLine(item);
-                    }
+                    logger.LogInformation($"Get items: {response.RequestCharge}");
+                    result.AddRange(response);
                 }
             }
+            return result;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Insight.PowerBI.Core.Interfaces;
+using Insight.PowerBI.Core.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using System;

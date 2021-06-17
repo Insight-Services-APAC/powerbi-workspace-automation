@@ -1,14 +1,10 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using System.Web;
 using Insight.PowerBI.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace Insight.PBIAutomation.Triggers
 {
@@ -16,10 +12,12 @@ namespace Insight.PBIAutomation.Triggers
     {
         private readonly ICosmosDbService cosmosDbService;
 
-        public ScheduledTriggers(ICosmosDbService cosmosDbService)
+        public ScheduledTriggers(IWorkspaceExtractOrchestration workspaceExtract)
         {
-            this.cosmosDbService = cosmosDbService;
+            WorkspaceExtract = workspaceExtract;
         }
+
+        public IWorkspaceExtractOrchestration WorkspaceExtract { get; }
 
         [FunctionName("SubscriptionsList")]
         public async Task<IActionResult> WorkspaceList(
@@ -27,9 +25,7 @@ namespace Insight.PBIAutomation.Triggers
             ILogger log)
         {
             log.LogInformation("WorkspaceList activated.");
-            var id = req.Query["id"];
-            await cosmosDbService.GetItemsAsync();
-
+            await WorkspaceExtract.WorkspaceETLAsync();
             return new OkResult();
         }
     }

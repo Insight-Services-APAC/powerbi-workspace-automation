@@ -22,13 +22,13 @@ namespace Insight.PBIAutomation.Triggers
             this.powerBIClient = powerBIClient;
         }
 
-        [FunctionName("WorkspaceCreate")]
+        [FunctionName("Workspace")]
         public async Task<IActionResult> WorkspaceCreate(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", "put", Route = null)] HttpRequest req,
             [CosmosDB(
                 databaseName: "%cosmosDbName%",
-                collectionName: "%subscriptionCollectionName%",
-                ConnectionStringSetting = "cosmosDBConnection",
+                collectionName: "%SubscriptionContainerName%",
+                ConnectionStringSetting = "CosmosDBConnection",
                 Id = "{Query.id}",
                 PartitionKey = "{Query.id}")]SubscriptionItem subscriptionItem,
             ILogger log)
@@ -90,8 +90,8 @@ namespace Insight.PBIAutomation.Triggers
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             [CosmosDB(
                 databaseName: "%cosmosDbName%",
-                collectionName: "%subscriptionCollectionName%",
-                ConnectionStringSetting = "cosmosDBConnection",
+                collectionName: "%SubscriptionContainerName%",
+                ConnectionStringSetting = "CosmosDBConnection",
                 Id = "{Query.id}",
                 PartitionKey = "{Query.id}")]SubscriptionItem subscriptionItem,
             ILogger log)
