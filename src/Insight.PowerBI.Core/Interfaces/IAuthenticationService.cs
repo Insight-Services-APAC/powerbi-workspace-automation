@@ -7,6 +7,8 @@ namespace Insight.PowerBI.Core.Interfaces
     {
         string ApiUrl { get; }
         string Scope { get; }
+
+        IConfidentialClientApplication GetConfidentialClient();
         Task<AuthenticationResult> GetTokenCredentialsAsync();
     }
 }

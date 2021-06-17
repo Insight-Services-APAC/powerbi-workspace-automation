@@ -6,7 +6,9 @@ namespace Insight.PowerBI.Core.Interfaces
 {
     public interface IPowerBIService
     {
-        Task<IList<Group>> GetGroupsAsync();
+        Task<IList<Group>> GetGroupAsync(string workspaceName);
         Task<Group> CreateGroupAsync(string workspaceName, string aadGroupName = null);
+        Task UpdateGroupAsync(string workspaceName, string aadGroupName);
+        Task<IList<Group>> GetGroupsAllExpandedAsync();
     }
 }
