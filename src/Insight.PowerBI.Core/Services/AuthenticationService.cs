@@ -19,17 +19,27 @@ namespace Insight.PowerBI.Core.Services
             this.config = config.Value;
         }
 
-        private IConfidentialClientApplication GetConfidentialClient()
+        private IConfidentialClientApplication GetPowerBIConfidentialClient()
         {
-            return ConfidentialClientApplicationBuilder.Create(config.ClientId)
-                   .WithClientSecret(config.ClientSecret)
-                   .WithAuthority(new Uri(config.Authority))
-                   .Build();
+            return ConfidentialClientApplicationBuilder
+                .Create(config.ClientId)
+                .WithClientSecret(config.ClientSecret)
+                .WithAuthority(new Uri(config.Authority))
+                .Build();
+        }
+
+        public IConfidentialClientApplication GetConfidentialClient()
+        {
+            return ConfidentialClientApplicationBuilder
+                .Create(config.ClientId)
+                .WithClientSecret(config.ClientSecret)
+                .WithTenantId(config.Tenant)
+                .Build();
         }
 
         public async Task<AuthenticationResult> GetTokenCredentialsAsync()
         {
-            return await GetConfidentialClient().AcquireTokenForClient(new string[] { config.Scope }).ExecuteAsync();
+            return await GetPowerBIConfidentialClient().AcquireTokenForClient(new string[] { config.Scope }).ExecuteAsync();
         }
     }
 }

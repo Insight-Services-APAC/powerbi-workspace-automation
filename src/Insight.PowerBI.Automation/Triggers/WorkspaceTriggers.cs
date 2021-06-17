@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Web;
+using Insight.PowerBI.Core.Exceptions;
 using Insight.PowerBI.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,7 @@ namespace Insight.PBIAutomation.Triggers
 
         [FunctionName("WorkspaceCreate")]
         public async Task<IActionResult> WorkspaceCreate(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", "put", Route = null)] HttpRequest req,
             [CosmosDB(
                 databaseName: "%cosmosDbName%",
                 collectionName: "%subscriptionCollectionName%",
@@ -34,13 +35,54 @@ namespace Insight.PBIAutomation.Triggers
         {
 
             log.LogInformation("WorkspaceCreate activated.");
+            try
+            {
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                dynamic data = JsonConvert.DeserializeObject(requestBody);
+                var workspaceName = $"{subscriptionItem.WorkspacePrefix}-{data.workSpaceName}";
+                IActionResult result = new OkResult();
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            var workspaceName = $"{subscriptionItem.WorkspacePrefix}-{data.workSpaceName}";
-            var group = await powerBIClient.CreateGroupAsync(workspaceName);
+                switch (req.Method)
+                {
+                    case "GET":
+                        result = await GetWorkspaceAsync(workspaceName);
+                        break;
+                    case "POST":
+                        result = await CreateWorkspaceAsync(subscriptionItem, workspaceName);
+                        break;
+                    case "PUT":
+                        result = await UpdateWorkspaceAsync(subscriptionItem, workspaceName);
+                        break;
+                }
+                return result;
+            }
+            catch (PowerBIException ex)
+            {
+                return new BadRequestObjectResult(new { Message = ex.Message });
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
+        private async Task<IActionResult> UpdateWorkspaceAsync(SubscriptionItem subscriptionItem, string workspaceName)
+        {
+            await powerBIClient.UpdateGroupAsync(workspaceName, subscriptionItem.AdminSecurityGroup);
+            return new OkResult();
+        }
+
+        private async Task<IActionResult> CreateWorkspaceAsync(SubscriptionItem subscriptionItem, string workspaceName)
+        {
+            var group = await powerBIClient.CreateGroupAsync(workspaceName, subscriptionItem.AdminSecurityGroup);
             return new CreatedResult(group.Id.ToString(), group);
+        }
+
+        private async Task<IActionResult> GetWorkspaceAsync(string workspaceName)
+        {
+            var groups = await powerBIClient.GetGroupAsync(workspaceName);
+
+            return new OkObjectResult(groups);
         }
 
         [FunctionName("WorkspaceList")]
@@ -56,7 +98,7 @@ namespace Insight.PBIAutomation.Triggers
         {
             log.LogInformation("WorkspaceList activated.");
             var id = req.Query["id"];
-            var groups = await powerBIClient.GetGroupsAsync();
+            var groups = await powerBIClient.GetGroupsAllExpandedAsync();
 
             return new OkObjectResult(groups);
         }
