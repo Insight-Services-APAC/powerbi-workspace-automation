@@ -1,9 +1,17 @@
-POST https://hss-syd-dev-api-powerbi.azure-api.net/hsp/WorkspaceCreate?id=WACHS
-Ocp-Apim-Subscription-Key: 
+PUT http://localhost:7071/api/WorkspaceCreate?id=WACHS
 content-type: application/json
 
 {
-    "workSpaceName": "sample"
+    "workSpaceName": "new"
+}
+###
+
+POST http://localhost:7071/api/WorkspaceCreate?id=WACHS
+content-type: application/json
+
+{
+    "workSpaceName": "new"
 }
 
 ###
+GET http://localhost:7071/api/ActivitiesScheduled
