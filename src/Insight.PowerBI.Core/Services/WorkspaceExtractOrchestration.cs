@@ -26,7 +26,7 @@ namespace Insight.PowerBI.Core.Services
             this.cosmosDbOptions = cosmosDbOptions.Value;
         }
 
-        public async Task WorkspaceETLAsync()
+        public async Task WorkspacesAsync()
         {
             var groups = await powerBIService.GetGroupsAllExpandedAsync();
             var subscriptions = await cosmosDbService.

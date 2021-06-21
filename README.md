@@ -1,2 +1,3 @@
 # powerbi-workspace-automation
 Automate creation of Power BI Workspaces. APIs to extract Workspace metrics
+[![hss-syd-dev-fun-powerbi](https://github.com/Insight-Services-APAC/powerbi-workspace-automation/actions/workflows/feature-getstats_hss-syd-dev-fun-powerbi.yml/badge.svg)](https://github.com/Insight-Services-APAC/powerbi-workspace-automation/actions/workflows/feature-getstats_hss-syd-dev-fun-powerbi.yml)

@@ -8,6 +8,6 @@ namespace Insight.PowerBI.Core.Interfaces
     public interface IWorkspaceExtractOrchestration
     {
         Task<IList<PowerBIActivity>> ActivitiesAsync(DateTime? defaultDate = null);
-        Task WorkspaceETLAsync();
+        Task WorkspacesAsync();
     }
 }

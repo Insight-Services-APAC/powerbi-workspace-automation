@@ -19,7 +19,7 @@ namespace Insight.PBIAutomation.Triggers
         public IWorkspaceExtractOrchestration WorkspaceExtract { get; }
 
         [FunctionName("ActivitiesScheduled")]
-        public async Task<IActionResult> WorkspaceList(
+        public async Task<IActionResult> ActivitiesScheduled(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
@@ -33,9 +33,19 @@ namespace Insight.PBIAutomation.Triggers
                     activityDate = tmp;
                 }
             }
-            log.LogInformation("WorkspaceList activated.");
+            log.LogInformation("ActivitiesScheduled activated.");
             var a = await WorkspaceExtract.ActivitiesAsync(activityDate);
             return new OkObjectResult(a);
+        }
+
+        [FunctionName("WorkspacesScheduled")]
+        public async Task<IActionResult> WorkspacesScheduled(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
+            ILogger log)
+        {
+            log.LogInformation("ActivitiesScheduled activated.");
+            await WorkspaceExtract.WorkspacesAsync();
+            return new OkResult();
         }
     }
 }

@@ -14,4 +14,4 @@ content-type: application/json
 }
 
 ###
-GET http://localhost:7071/api/ActivitiesScheduled
+https://hss-syd-dev-fun-powerbi.azurewebsites.net/api/ActivitiesScheduled?code={code}}==&clientId=apim-hss-syd-dev-api-powerbi
