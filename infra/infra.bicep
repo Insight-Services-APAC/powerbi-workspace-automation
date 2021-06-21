@@ -109,7 +109,7 @@ resource funcApp 'Microsoft.Web/sites@2021-01-01' = {
         }
         {
           name: 'SubscriptionContainerName'
-          value: 'Subscription'
+          value: 'Subscriptions'
         }
         {
           name: 'WorkspaceContainerName'

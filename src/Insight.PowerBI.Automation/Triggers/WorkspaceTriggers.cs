@@ -23,7 +23,7 @@ namespace Insight.PBIAutomation.Triggers
         }
 
         [FunctionName("Workspace")]
-        public async Task<IActionResult> WorkspaceCreate(
+        public async Task<IActionResult> WorkspaceAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", "put", Route = null)] HttpRequest req,
             [CosmosDB(
                 databaseName: "%cosmosDbName%",
@@ -34,7 +34,7 @@ namespace Insight.PBIAutomation.Triggers
             ILogger log)
         {
 
-            log.LogInformation("WorkspaceCreate activated.");
+            log.LogInformation("WorkspaceAsync activated.");
             try
             {
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
