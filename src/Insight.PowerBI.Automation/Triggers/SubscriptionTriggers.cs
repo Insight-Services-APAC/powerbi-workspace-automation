@@ -25,7 +25,7 @@ namespace Insight.PBIAutomation.Triggers
             this.options = options.Value;
         }
 
-        [FunctionName("Subscription")]
+        [FunctionName("GetSubscription")]
         public IActionResult GetSubscription(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             [CosmosDB(
@@ -40,7 +40,7 @@ namespace Insight.PBIAutomation.Triggers
             return new OkObjectResult(subscriptionItem);
         }
 
-        [FunctionName("SubscriptionList")]
+        [FunctionName("GetSubscriptionList")]
         public async Task<IActionResult> GetSubscriptionListAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
@@ -50,7 +50,7 @@ namespace Insight.PBIAutomation.Triggers
             return new OkObjectResult(items);
         }
 
-        [FunctionName("Subscription")]
+        [FunctionName("CreateSubscription")]
         public async Task<IActionResult> CreateSubscriptionAsync(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             ILogger log)
