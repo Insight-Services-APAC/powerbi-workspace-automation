@@ -15,3 +15,7 @@ content-type: application/json
 
 ###
 https://hss-syd-dev-fun-powerbi.azurewebsites.net/api/ActivitiesScheduled?code={code}}==&clientId=apim-hss-syd-dev-api-powerbi
+###
+
+GET https://hss-syd-dev-api-powerbi.azure-api.net/hss-syd-dev-fun-powerbi/Activity
+Ocp-Apim-Subscription-Key: {code}
