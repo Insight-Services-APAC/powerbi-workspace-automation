@@ -11,15 +11,16 @@ namespace Insight.PBIAutomation.Triggers
 {
     public class ScheduledTriggers
     {
-        public ScheduledTriggers(IWorkspaceExtractOrchestration workspaceExtract)
+        public ScheduledTriggers(IPowerBIETLOrchestration workspaceExtract)
         {
             WorkspaceExtract = workspaceExtract;
         }
 
-        public IWorkspaceExtractOrchestration WorkspaceExtract { get; }
+        public IPowerBIETLOrchestration WorkspaceExtract { get; }
 
         [FunctionName("ActivitiesScheduled")]
         public async Task<IActionResult> ActivitiesScheduled(
+            //[TimerTrigger("0 0 1 * * *", RunOnStartup = false, UseMonitor = true)] TimerInfo timmer,
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
@@ -40,6 +41,7 @@ namespace Insight.PBIAutomation.Triggers
 
         [FunctionName("WorkspacesScheduled")]
         public async Task<IActionResult> WorkspacesScheduled(
+            //[TimerTrigger("0 0 1 * * *", RunOnStartup = false, UseMonitor = true)] TimerInfo timmer,
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {

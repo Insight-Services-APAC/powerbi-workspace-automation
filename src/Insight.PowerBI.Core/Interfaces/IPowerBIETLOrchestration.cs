@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Insight.PowerBI.Core.Interfaces
 {
-    public interface IWorkspaceExtractOrchestration
+    public interface IPowerBIETLOrchestration
     {
         Task<IList<PowerBIActivity>> ActivitiesAsync(DateTime? defaultDate = null);
         Task WorkspacesAsync();

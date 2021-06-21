@@ -13,13 +13,14 @@ using System.Threading.Tasks;
 
 namespace Insight.PowerBI.Core.Services
 {
-    public class WorkspaceExtractOrchestration : IWorkspaceExtractOrchestration
+    public class PowerBIETLOrchestration : IPowerBIETLOrchestration
     {
+        private const string DefaultWorkspacePartitionKey = "default";
         private readonly IPowerBIService powerBIService;
         private readonly ICosmosDbService cosmosDbService;
         private readonly CosmosDbOptions cosmosDbOptions;
 
-        public WorkspaceExtractOrchestration(IPowerBIService powerBIService, ICosmosDbService cosmosDbService, IOptions<CosmosDbOptions> cosmosDbOptions)
+        public PowerBIETLOrchestration(IPowerBIService powerBIService, ICosmosDbService cosmosDbService, IOptions<CosmosDbOptions> cosmosDbOptions)
         {
             this.powerBIService = powerBIService;
             this.cosmosDbService = cosmosDbService;
@@ -32,18 +33,14 @@ namespace Insight.PowerBI.Core.Services
             var subscriptions = await cosmosDbService.
                 GetItemsAsync<SubscriptionItem>(cosmosDbOptions.SubscriptionContainerName);
 
-            List<HSPPowerBIGroup> outputGroups = new List<HSPPowerBIGroup>();
-            foreach (var s in subscriptions)
-            {
-                var foundGroups = groups
-                    .Where(g => g.Name.StartsWith(s.WorkspacePrefix))
-                    .Select(g => new HSPPowerBIGroup(s.WorkspacePrefix, g));
-                outputGroups.AddRange(foundGroups);
-            }
+            Func<Microsoft.PowerBI.Api.Models.Group, IList<SubscriptionItem>, string> GetWorkspacePrefix = (group, subs) => 
+                subs.FirstOrDefault(s => group.Name.StartsWith(s.WorkspacePrefix))?.WorkspacePrefix ?? DefaultWorkspacePartitionKey;
 
-            await cosmosDbService.WriteItemsAsync(
+            var result = groups.Select(x => new HSPPowerBIGroup(GetWorkspacePrefix(x, subscriptions), x)).ToList();
+
+            await cosmosDbService.CreateItemsAsync(
                 cosmosDbOptions.WorkspaceContainerName,
-                outputGroups,
+                result,
                 (HSPPowerBIGroup x) => x.HSPName);
         }
 
@@ -57,7 +54,7 @@ namespace Insight.PowerBI.Core.Services
                 Payload = JsonConvert.DeserializeObject(x.ToString())
             }).ToList();
 
-            await cosmosDbService.WriteItemsAsync(
+            await cosmosDbService.CreateItemsAsync(
                 cosmosDbOptions.ActivitiesContainerName,
                 items,
                 (PowerBIActivity x) => x.id);

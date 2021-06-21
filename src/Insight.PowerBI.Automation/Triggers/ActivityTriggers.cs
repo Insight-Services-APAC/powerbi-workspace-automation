@@ -1,9 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
-using Insight.PowerBI.Core.Exceptions;
 using Insight.PowerBI.Core.Interfaces;
 using Insight.PowerBI.Core.Models;
 using Insight.PowerBI.Core.Options;
@@ -13,7 +7,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Insight.PBIAutomation.Triggers
 {
@@ -27,7 +22,6 @@ namespace Insight.PBIAutomation.Triggers
             this.cosmosDbService = cosmosDbService;
             this.options = options.Value;
         }
-
         [FunctionName("Activity")]
         public async Task<IActionResult> ActivityGetAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,

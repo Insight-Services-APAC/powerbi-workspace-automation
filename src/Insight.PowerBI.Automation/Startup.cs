@@ -31,7 +31,7 @@ namespace Insight.PowerBI.Automation
             builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
             builder.Services.AddSingleton<ICosmosDbService, CosmosDbService>();
             builder.Services.AddSingleton<IGraphService, GraphService>();
-            builder.Services.AddSingleton<IWorkspaceExtractOrchestration, WorkspaceExtractOrchestration>();
+            builder.Services.AddSingleton<IPowerBIETLOrchestration, PowerBIETLOrchestration>();
             builder.Services.AddSingleton(s =>
             {
                 var connectionString = context.Configuration.GetValue<string>("CosmosDBConnection");

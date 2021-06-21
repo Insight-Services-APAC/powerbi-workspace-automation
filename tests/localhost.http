@@ -19,3 +19,5 @@ GET http://localhost:7071/api/Activity?id=WACHS
 GET http://localhost:7071/api/ActivitiesScheduled
 ###
 GET http://localhost:7071/api/WorkspacesScheduled
+###
+http://localhost:7071/api/swagger.json

@@ -48,8 +48,19 @@ namespace Insight.PowerBI.Core.Services
             try
             {
                 var client = await GetPowerBIClientAsync();
-                var groups = await client.Groups.GetGroupsAsAdminAsync(100, "users,reports,dashboards,datasets");
-                return groups.Value;
+                List<Group> groups = new List<Group>();
+                const int top = 1000;
+                int skip = 0;
+                var response = await client.Groups.GetGroupsAsAdminAsync(top, "users,reports,dashboards,datasets", "state eq 'Active'");
+                groups.AddRange(response.Value);
+
+                while (response.Value.Count == top)
+                {
+                    skip += top;
+                    response = await client.Groups.GetGroupsAsAdminAsync(top, "users,reports,dashboards,datasets", "state eq 'Active'", skip);
+                    groups.AddRange(response.Value);
+                }
+                return groups;
             }
             catch (HttpOperationException ex)
             {
