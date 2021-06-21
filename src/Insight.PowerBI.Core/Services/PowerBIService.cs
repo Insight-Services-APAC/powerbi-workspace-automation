@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Insight.PowerBI.Core.Exceptions;
@@ -20,13 +22,15 @@ namespace Insight.PowerBI.Core.Services
         private readonly IAuthenticationService authenticationService;
         private readonly IGraphService graphService;
         private readonly ILogger<PowerBIService> logger;
+        private readonly HttpClient httpClient;
         private PowerBIClient _client;
 
-        public PowerBIService(IAuthenticationService authenticationService, IGraphService graphService, ILogger<PowerBIService> logger)
+        public PowerBIService(IAuthenticationService authenticationService, IGraphService graphService, ILogger<PowerBIService> logger, HttpClient httpClient)
         {
             this.authenticationService = authenticationService;
             this.graphService = graphService;
             this.logger = logger;
+            this.httpClient = httpClient;
         }
 
         private async Task<PowerBIClient> GetPowerBIClientAsync()
@@ -157,27 +161,55 @@ namespace Insight.PowerBI.Core.Services
 
         }
 
-        public async Task<IList<object>> GetActivityEventsAsync()
+        public async Task<IList<object>> GetActivityEventsAsync(DateTime? defaultDate = null)
         {
             try
             {
-                //var startDate = DateTime.UtcNow.AddHours(8).ToString("yyyy-MM-ddTHH:mm:ssZ");
-                //var endDate = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-                var startDate = "2021-06-10T01:00:00";
-                var endDate = "2021-06-10T23:00:00";
+                var activityDate = (defaultDate ?? DateTime.UtcNow);
+
+                var startDate = activityDate.ToString("yyyy-MM-ddT00:00:00");
+                var endDate = activityDate.ToString("yyyy-MM-ddT23:59:59");
                 var client = await GetPowerBIClientAsync();
-                var activities =await  client.Admin.GetActivityEventsAsync($"'{startDate}'", $"'{endDate}'");
-                return activities.ActivityEventEntities;
+
+                var response = await client.Admin.GetActivityEventsAsync(startDateTime: $"'{startDate}'", endDateTime: $"'{endDate}'");
+                return await GetActivityEventsAsync(response);
             }
             catch (HttpOperationException ex)
             {
+                Debug.WriteLine(ex.Request.RequestUri);
+                Debug.WriteLine(ex.Response.Content);
                 throw HandleHttpOperationException(ex);
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, $"GetActivityEventsAsync failed");
                 throw;
             }
 
+        }
+
+        private async Task<IList<object>> GetActivityEventsAsync(ActivityEventResponse response)
+        {
+            List<object> activities = new List<object>();
+            activities.AddRange(response.ActivityEventEntities);
+            string accessToken = null;
+            if (response.ContinuationToken != null)
+            {
+                accessToken = (await authenticationService.GetTokenCredentialsAsync()).AccessToken;
+                httpClient.DefaultRequestHeaders.Remove("Authorization");
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+            }
+            while (response.ContinuationToken != null)
+            {
+                var httpResponse = await httpClient.GetAsync(response.ContinuationUri);
+                var responseContent = await httpResponse.Content.ReadAsStringAsync();
+                response = JsonConvert.DeserializeObject<ActivityEventResponse>(responseContent);
+                if (response.ActivityEventEntities != null)
+                {
+                    activities.AddRange(response.ActivityEventEntities);
+                }
+            }
+            return activities;
         }
 
         private Exception HandleHttpOperationException(HttpOperationException ex, [CallerMemberName] string memberName = "PowerBIService")

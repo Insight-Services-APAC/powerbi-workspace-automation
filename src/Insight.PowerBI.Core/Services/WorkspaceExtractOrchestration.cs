@@ -3,6 +3,8 @@ using Insight.PowerBI.Core.Interfaces;
 using Insight.PowerBI.Core.Models;
 using Insight.PowerBI.Core.Options;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,9 +47,22 @@ namespace Insight.PowerBI.Core.Services
                 (HSPPowerBIGroup x) => x.HSPName);
         }
 
-        public async Task<IList<object>> ActivitiesAsync()
+        public async Task<IList<PowerBIActivity>> ActivitiesAsync(DateTime? defaultDate = null)
         {
-            return await powerBIService.GetActivityEventsAsync();
+            var activities = await powerBIService.GetActivityEventsAsync(defaultDate);
+
+            var items = activities.Select(x => new PowerBIActivity
+            {
+                id = JObject.Parse(x.ToString())["Id"].ToString(),
+                Payload = JsonConvert.DeserializeObject(x.ToString())
+            }).ToList();
+
+            await cosmosDbService.WriteItemsAsync(
+                cosmosDbOptions.ActivitiesContainerName,
+                items,
+                (PowerBIActivity x) => x.id);
+
+            return items;
         }
     }
 }

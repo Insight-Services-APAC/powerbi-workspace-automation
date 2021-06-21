@@ -115,6 +115,10 @@ resource funcApp 'Microsoft.Web/sites@2021-01-01' = {
           name: 'WorkspaceContainerName'
           value: 'Workspaces'
         }
+        {
+          name: 'ActivitiesContainerName'
+          value: 'Activities'
+        }
       ]
     }
   }
@@ -221,6 +225,21 @@ resource workspaceContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/
       partitionKey:{
         paths: [
           '/HSPName'
+        ]
+      }
+      defaultTtl: 2592000
+    }
+  }
+}
+
+resource activitiesContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-04-15' = {
+  name: '${cosmosName}/${cosmosDbName}/Activities'
+  properties: {
+    resource: {
+      id: 'Activities'
+      partitionKey:{
+        paths: [
+          '/id'
         ]
       }
       defaultTtl: 2592000

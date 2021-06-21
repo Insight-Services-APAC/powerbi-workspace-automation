@@ -14,4 +14,4 @@ content-type: application/json
 }
 
 ###
-GET http://localhost:7071/api/SubscriptionsList
+GET http://localhost:7071/api/ActivitiesScheduled

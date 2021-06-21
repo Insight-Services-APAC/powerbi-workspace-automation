@@ -97,7 +97,6 @@ namespace Insight.PBIAutomation.Triggers
             ILogger log)
         {
             log.LogInformation("WorkspaceList activated.");
-            var id = req.Query["id"];
             var groups = await powerBIClient.GetGroupsAllExpandedAsync();
 
             return new OkObjectResult(groups);

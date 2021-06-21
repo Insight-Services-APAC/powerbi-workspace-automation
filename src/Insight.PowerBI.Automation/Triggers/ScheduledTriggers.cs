@@ -4,14 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
 namespace Insight.PBIAutomation.Triggers
 {
     public class ScheduledTriggers
     {
-        private readonly ICosmosDbService cosmosDbService;
-
         public ScheduledTriggers(IWorkspaceExtractOrchestration workspaceExtract)
         {
             WorkspaceExtract = workspaceExtract;
@@ -19,14 +18,23 @@ namespace Insight.PBIAutomation.Triggers
 
         public IWorkspaceExtractOrchestration WorkspaceExtract { get; }
 
-        [FunctionName("SubscriptionsList")]
+        [FunctionName("ActivitiesScheduled")]
         public async Task<IActionResult> WorkspaceList(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
+            var activityDateString = req.Query["activityDate"].ToString();
+            DateTime? activityDate = null;
+            if (!string.IsNullOrEmpty(activityDateString))
+            {
+                DateTime tmp;
+                if (DateTime.TryParse(activityDateString, out tmp))
+                {
+                    activityDate = tmp;
+                }
+            }
             log.LogInformation("WorkspaceList activated.");
-            //await WorkspaceExtract.WorkspaceETLAsync();
-            var a = await WorkspaceExtract.ActivitiesAsync();
+            var a = await WorkspaceExtract.ActivitiesAsync(activityDate);
             return new OkObjectResult(a);
         }
     }
