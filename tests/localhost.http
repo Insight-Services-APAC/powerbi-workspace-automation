@@ -1,4 +1,4 @@
-PUT http://localhost:7071/api/WorkspaceCreate?id=WACHS
+PUT http://localhost:7071/api/Workspace?id=WACHS
 content-type: application/json
 
 {
@@ -6,12 +6,18 @@ content-type: application/json
 }
 ###
 
-POST http://localhost:7071/api/WorkspaceCreate?id=WACHS
+POST http://localhost:7071/api/Workspace?id=WACHS
 content-type: application/json
 
 {
     "workSpaceName": "new"
 }
+###
+GET http://localhost:7071/api/Activity?id=WACHS
 
 ###
-GET http://localhost:7071/api/SubscriptionsList
+GET http://localhost:7071/api/ActivitiesScheduled
+###
+GET http://localhost:7071/api/WorkspacesScheduled
+###
+http://localhost:7071/api/swagger.json

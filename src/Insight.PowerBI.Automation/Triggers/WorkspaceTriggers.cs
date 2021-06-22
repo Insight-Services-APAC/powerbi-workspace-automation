@@ -1,7 +1,3 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using System.Web;
 using Insight.PowerBI.Core.Exceptions;
 using Insight.PowerBI.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +6,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Insight.PBIAutomation.Triggers
 {
@@ -23,7 +21,7 @@ namespace Insight.PBIAutomation.Triggers
         }
 
         [FunctionName("Workspace")]
-        public async Task<IActionResult> WorkspaceCreate(
+        public async Task<IActionResult> WorkspaceAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", "put", Route = null)] HttpRequest req,
             [CosmosDB(
                 databaseName: "%cosmosDbName%",
@@ -34,7 +32,7 @@ namespace Insight.PBIAutomation.Triggers
             ILogger log)
         {
 
-            log.LogInformation("WorkspaceCreate activated.");
+            log.LogInformation("WorkspaceAsync activated.");
             try
             {
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
@@ -45,7 +43,7 @@ namespace Insight.PBIAutomation.Triggers
                 switch (req.Method)
                 {
                     case "GET":
-                        result = await GetWorkspaceAsync(workspaceName);
+                        result = await GetWorkspaceAsync(req.Query["name"].ToString());
                         break;
                     case "POST":
                         result = await CreateWorkspaceAsync(subscriptionItem, workspaceName);
@@ -80,6 +78,9 @@ namespace Insight.PBIAutomation.Triggers
 
         private async Task<IActionResult> GetWorkspaceAsync(string workspaceName)
         {
+            if (string.IsNullOrEmpty(workspaceName))
+                return new BadRequestObjectResult(new { error = "'name' must be a valid workspace name" });
+
             var groups = await powerBIClient.GetGroupAsync(workspaceName);
 
             return new OkObjectResult(groups);
@@ -97,7 +98,6 @@ namespace Insight.PBIAutomation.Triggers
             ILogger log)
         {
             log.LogInformation("WorkspaceList activated.");
-            var id = req.Query["id"];
             var groups = await powerBIClient.GetGroupsAllExpandedAsync();
 
             return new OkObjectResult(groups);

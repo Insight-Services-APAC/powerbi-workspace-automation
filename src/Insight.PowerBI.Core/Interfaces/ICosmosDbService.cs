@@ -7,6 +7,7 @@ namespace Insight.PowerBI.Core.Interfaces
     public interface ICosmosDbService
     {
         Task<IList<T>> GetItemsAsync<T>(string containerId, string query = null);
-        Task WriteItemsAsync<T>(string containerId, IList<T> items, Func<T, string> partitionFunc);
+        Task<IList<T>> CreateItemsAsync<T>(string containerId, IList<T> items, Func<T, string> partitionFunc);
+        Task<T> CreateItemAsync<T>(string containerId, T items, Func<T, string> partitionFunc);
     }
 }

@@ -24,12 +24,14 @@ namespace Insight.PowerBI.Automation
                 settings.CosmosDbName = configuration.GetValue<string>("CosmosDbName");
                 settings.SubscriptionContainerName= configuration.GetValue<string>("SubscriptionContainerName");
                 settings.WorkspaceContainerName = configuration.GetValue<string>("WorkspaceContainerName");
+                settings.ActivitiesContainerName = configuration.GetValue<string>("ActivitiesContainerName");
             });
+            builder.Services.AddHttpClient();
             builder.Services.AddSingleton<IPowerBIService, PowerBIService>();
             builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
             builder.Services.AddSingleton<ICosmosDbService, CosmosDbService>();
             builder.Services.AddSingleton<IGraphService, GraphService>();
-            builder.Services.AddSingleton<IWorkspaceExtractOrchestration, WorkspaceExtractOrchestration>();
+            builder.Services.AddSingleton<IPowerBIETLOrchestration, PowerBIETLOrchestration>();
             builder.Services.AddSingleton(s =>
             {
                 var connectionString = context.Configuration.GetValue<string>("CosmosDBConnection");

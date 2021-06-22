@@ -22,8 +22,8 @@ namespace Insight.PowerBI.Core.Services
         private readonly CosmosDbOptions options;
 
         public CosmosDbService(
-            CosmosClient cosmosClient, 
-            IOptions<CosmosDbOptions> options, 
+            CosmosClient cosmosClient,
+            IOptions<CosmosDbOptions> options,
             ILogger<CosmosDbService> logger)
         {
             this.cosmosClient = cosmosClient;
@@ -32,19 +32,36 @@ namespace Insight.PowerBI.Core.Services
         }
 
 
-        public async Task WriteItemsAsync<T>(string containerId, IList<T> items, Func<T, string> partitionFunc)
+        public async Task<IList<T>> CreateItemsAsync<T>(string containerId, IList<T> items, Func<T, string> partitionFunc)
         {
             try
             {
                 var container = cosmosClient.GetContainer(DatabaseId, containerId);
+                List<T> responseItems = new List<T>();
                 foreach (var item in items)
                 {
-                    await container.UpsertItemAsync<T>(item, new PartitionKey(partitionFunc(item)));
+                    var response = await container.UpsertItemAsync<T>(item, new PartitionKey(partitionFunc(item)));
+                    responseItems.Add(response.Resource);
                 }
+                return responseItems;
             }
             catch (Exception ex)
             {
                 throw new Exception("CosmosDbUpsertFailed", ex);
+            }
+        }
+
+        public async Task<T> CreateItemAsync<T>(string containerId, T item, Func<T, string> partitionFunc)
+        {
+            try
+            {
+                var container = cosmosClient.GetContainer(DatabaseId, containerId);
+                var response = await container.CreateItemAsync<T>(item, new PartitionKey(partitionFunc(item)));
+                return response.Resource;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("CosmosDbInsertFailed", ex);
             }
         }
 
