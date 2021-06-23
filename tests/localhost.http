@@ -10,8 +10,11 @@ POST http://localhost:7071/api/Workspace?id=WACHS
 content-type: application/json
 
 {
-    "workSpaceName": "new"
+    "workSpaceName": "demo"
 }
+###
+GET http://localhost:7071/api/Workspace?id=WACHS&name=WACHS-new
+
 ###
 GET http://localhost:7071/api/Activity?id=WACHS
 
@@ -20,4 +23,4 @@ GET http://localhost:7071/api/ActivitiesScheduled
 ###
 GET http://localhost:7071/api/WorkspacesScheduled
 ###
-http://localhost:7071/api/swagger.json
+GET http://localhost:7071/api/WorkspaceList

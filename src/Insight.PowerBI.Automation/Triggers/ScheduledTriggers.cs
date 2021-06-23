@@ -11,16 +11,14 @@ namespace Insight.PBIAutomation.Triggers
 {
     public class ScheduledTriggers
     {
+        private IPowerBIETLOrchestration workspaceExtract;
         public ScheduledTriggers(IPowerBIETLOrchestration workspaceExtract)
         {
-            WorkspaceExtract = workspaceExtract;
+            this.workspaceExtract = workspaceExtract;
         }
 
-        public IPowerBIETLOrchestration WorkspaceExtract { get; }
-
-        [FunctionName("ActivitiesScheduled")]
+        [FunctionName("ActivitiesTrigger")]
         public async Task<IActionResult> ActivitiesScheduled(
-            //[TimerTrigger("0 0 1 * * *", RunOnStartup = false, UseMonitor = true)] TimerInfo timmer,
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
@@ -35,18 +33,36 @@ namespace Insight.PBIAutomation.Triggers
                 }
             }
             log.LogInformation("ActivitiesScheduled activated.");
-            var a = await WorkspaceExtract.ActivitiesAsync(activityDate);
+            var a = await workspaceExtract.ActivitiesAsync(activityDate);
             return new OkObjectResult(a);
+        }
+
+        [FunctionName("ActivitiesScheduled")]
+        public async Task<IActionResult> ActivitiesScheduled(
+            [TimerTrigger("0 0 1 * * *", RunOnStartup = false, UseMonitor = true)] TimerInfo timer,
+            ILogger log)
+        {
+            log.LogInformation("ActivitiesScheduled activated.");
+            var a = await workspaceExtract.ActivitiesAsync(DateTime.UtcNow.AddDays(-1));
+            return new OkObjectResult(a);
+        }
+        [FunctionName("WorkspacesTrigger")]
+        public async Task<IActionResult> WorkspacesScheduled(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
+            ILogger log)
+        {
+            log.LogInformation("WorkspacesScheduled activated.");
+            await workspaceExtract.WorkspacesAsync();
+            return new OkResult();
         }
 
         [FunctionName("WorkspacesScheduled")]
         public async Task<IActionResult> WorkspacesScheduled(
-            //[TimerTrigger("0 0 1 * * *", RunOnStartup = false, UseMonitor = true)] TimerInfo timmer,
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
+            [TimerTrigger("0 0 1 * * *", RunOnStartup = false, UseMonitor = true)] TimerInfo timer,
             ILogger log)
         {
-            log.LogInformation("ActivitiesScheduled activated.");
-            await WorkspaceExtract.WorkspacesAsync();
+            log.LogInformation("WorkspacesScheduled activated.");
+            await workspaceExtract.WorkspacesAsync();
             return new OkResult();
         }
     }

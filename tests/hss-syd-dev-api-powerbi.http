@@ -1,4 +1,10 @@
-PUT http://localhost:7071/api/WorkspaceCreate?id=WACHS
+@subscriptionKey = ???
+
+https://hss-syd-dev-api-powerbi.azure-api.net/hss-syd-dev-fun-powerbi/Workspace?name=test
+Ocp-Apim-Subscription-Key: {{subscriptionKey}}
+###
+https://hss-syd-dev-api-powerbi.azure-api.net/hss-syd-dev-fun-powerbi/Workspace
+Ocp-Apim-Subscription-Key: {{subscriptionKey}}
 content-type: application/json
 
 {
@@ -6,16 +12,18 @@ content-type: application/json
 }
 ###
 
-POST http://localhost:7071/api/WorkspaceCreate?id=WACHS
+POST http://localhost:7071/api/WorkspaceCreate?id=wachs
 content-type: application/json
+Ocp-Apim-Subscription-Key: {{subscriptionKey}}
 
 {
     "workSpaceName": "new"
 }
-
-###
-https://hss-syd-dev-fun-powerbi.azurewebsites.net/api/ActivitiesScheduled?code={code}}==&clientId=apim-hss-syd-dev-api-powerbi
 ###
 
 GET https://hss-syd-dev-api-powerbi.azure-api.net/hss-syd-dev-fun-powerbi/Activity
-Ocp-Apim-Subscription-Key: {code}
+Ocp-Apim-Subscription-Key: {{subscriptionKey}}
+###
+
+GET https://hss-syd-dev-api-powerbi.azure-api.net/hss-syd-dev-fun-powerbi/WorkspaceList
+Ocp-Apim-Subscription-Key: {{subscriptionKey}}

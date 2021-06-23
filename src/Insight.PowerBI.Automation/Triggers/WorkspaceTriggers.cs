@@ -35,15 +35,13 @@ namespace Insight.PBIAutomation.Triggers
             log.LogInformation("WorkspaceAsync activated.");
             try
             {
-                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-                dynamic data = JsonConvert.DeserializeObject(requestBody);
-                var workspaceName = $"{subscriptionItem.WorkspacePrefix}-{data.workSpaceName}";
                 IActionResult result = new OkResult();
-
+                string workspaceName = await GetWorkspaceNameFromRequestAsync(req, subscriptionItem);
+                
                 switch (req.Method)
                 {
                     case "GET":
-                        result = await GetWorkspaceAsync(req.Query["name"].ToString());
+                        result = await GetWorkspaceAsync(workspaceName);
                         break;
                     case "POST":
                         result = await CreateWorkspaceAsync(subscriptionItem, workspaceName);
@@ -61,6 +59,23 @@ namespace Insight.PBIAutomation.Triggers
             catch
             {
                 throw;
+            }
+        }
+
+        private static async Task<string> GetWorkspaceNameFromRequestAsync(HttpRequest req, SubscriptionItem subscriptionItem)
+        {
+            if (req.Method == "GET")
+            {
+                return req.Query["name"].ToString();
+            }
+            else
+            {
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                dynamic data = JsonConvert.DeserializeObject(requestBody);
+                if (data != null && subscriptionItem != null)
+                    return $"{subscriptionItem.WorkspacePrefix}-{data.workSpaceName}";
+                else
+                    return string.Empty;
             }
         }
 
