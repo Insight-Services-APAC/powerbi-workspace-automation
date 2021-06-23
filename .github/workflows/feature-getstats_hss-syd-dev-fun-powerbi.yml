@@ -6,7 +6,7 @@ name: Build and deploy dotnet core app to Azure Function App - hss-syd-dev-fun-p
 on:
   push:
     branches:
-      - feature/getstats
+      - main
   workflow_dispatch:
 
 env:
