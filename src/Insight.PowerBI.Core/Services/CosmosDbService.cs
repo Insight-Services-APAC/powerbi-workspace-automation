@@ -1,14 +1,10 @@
 ﻿using Insight.PowerBI.Core.Interfaces;
-using Insight.PowerBI.Core.Models;
 using Insight.PowerBI.Core.Options;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Insight.PowerBI.Core.Services
@@ -65,7 +61,18 @@ namespace Insight.PowerBI.Core.Services
             }
         }
 
-        public async Task<IList<T>> GetItemsAsync<T>(string containerId, string query = null)
+        public async Task<IList<T>> GetItemsAsync<T>(string containerId, QueryDefinition query)
+        {
+            return await GetItemsInternalAsync<T>(containerId, query);
+        }
+
+        public async Task<IList<T>> GetItemsAsync<T>(string containerId, string queryString)
+        {
+            var query = new QueryDefinition(queryString);
+            return await GetItemsInternalAsync<T>(containerId, query);
+        }
+
+        private async Task<IList<T>> GetItemsInternalAsync<T>(string containerId, QueryDefinition query)
         {
             var container = cosmosClient.GetContainer(DatabaseId, containerId);
             var result = new List<T>();
