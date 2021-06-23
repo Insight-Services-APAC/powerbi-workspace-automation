@@ -20,8 +20,8 @@ namespace Insight.PBIAutomation.Triggers
             this.activityService = activityService;
         }
 
-        [FunctionName("Activity")]
-        public async Task<IActionResult> ActivityGetAsync(
+        [FunctionName("WorkspaceActivities")]
+        public async Task<IActionResult> GetWorkspaceActivitiesAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             [CosmosDB(
                 databaseName: "%cosmosDbName%",
@@ -35,7 +35,7 @@ namespace Insight.PBIAutomation.Triggers
             {
                 DateTime dateFrom = GetFromDate(req);
                 log.LogInformation("ActivityGet activated.");
-                var result = await activityService.GetActivitiesAsync(subscriptionItem.WorkspacePrefix, dateFrom);
+                var result = await activityService.GetWorkspaceActivitiesAsync(subscriptionItem.WorkspacePrefix, dateFrom);
                 return new OkObjectResult(result.Select(x => x.Payload));
             }
             catch (Exception ex)
@@ -51,6 +51,30 @@ namespace Insight.PBIAutomation.Triggers
             }
         }
 
+        [FunctionName("Activities")]
+        public async Task<IActionResult> GetActivitiesAsync(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
+            ILogger log)
+        {
+            try
+            {
+                DateTime dateFrom = GetFromDate(req);
+                log.LogInformation("ActivityGet activated.");
+                var result = await activityService.GetActivitiesAsync(dateFrom);
+                return new OkObjectResult(result.Select(x => x.Payload));
+            }
+            catch (Exception ex)
+            {
+                if (ex.Source == GetFromDateErrorSource)
+                {
+                    return new BadRequestObjectResult(ex.Message);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
         private static DateTime GetFromDate(HttpRequest req)
         {
             var fromDateString = req.Query["from"].ToString();

@@ -17,7 +17,7 @@ namespace Insight.PBIAutomation.Triggers
             this.workspaceExtract = workspaceExtract;
         }
 
-        [FunctionName("ActivitiesTrigger")]
+        [FunctionName("ActivitiesExtract")]
         public async Task<IActionResult> ActivitiesTriggerAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
@@ -46,7 +46,7 @@ namespace Insight.PBIAutomation.Triggers
             await workspaceExtract.ActivitiesAsync(DateTime.UtcNow.AddDays(-1));
         }
 
-        [FunctionName("WorkspacesTrigger")]
+        [FunctionName("WorkspacesExtract")]
         public async Task<IActionResult> WorkspacesTriggerAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)

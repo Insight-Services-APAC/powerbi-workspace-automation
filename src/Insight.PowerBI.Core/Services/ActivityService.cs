@@ -20,11 +20,20 @@ namespace Insight.PowerBI.Core.Services
             this.option = options.Value;
         }
 
-        public async Task<IList<PowerBIActivity>> GetActivitiesAsync(string workspaceName, DateTime dateFrom)
+        public async Task<IList<PowerBIActivity>> GetWorkspaceActivitiesAsync(string workspaceName, DateTime dateFrom)
         {
             string queryString = "SELECT * FROM c WHERE STARTSWITH(c.Payload.WorkSpaceName, '@workspaceName') AND c.Payload.CreationTime > @dateFrom";
             QueryDefinition query = new QueryDefinition(queryString)
                 .WithParameter("@workspaceName", workspaceName)
+                .WithParameter("@dateFrom", dateFrom.ToString("u"));
+
+            return await cosmosDbService.GetItemsAsync<PowerBIActivity>(option.ActivitiesContainerName, query);
+        }
+
+        public async Task<IList<PowerBIActivity>> GetActivitiesAsync(DateTime dateFrom)
+        {
+            string queryString = "SELECT * FROM c WHERE c.Payload.CreationTime > @dateFrom";
+            QueryDefinition query = new QueryDefinition(queryString)
                 .WithParameter("@dateFrom", dateFrom.ToString("u"));
 
             return await cosmosDbService.GetItemsAsync<PowerBIActivity>(option.ActivitiesContainerName, query);
