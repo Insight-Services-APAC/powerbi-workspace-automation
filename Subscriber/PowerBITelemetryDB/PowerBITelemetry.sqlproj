@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>PowerBITelemetry</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{1f4e4790-f317-4406-b41a-2ab121f230d1}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>PowerBITelemetry</RootNamespace>
+    <AssemblyName>PowerBITelemetry</AssemblyName>
+    <ModelCollation>1033,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="CEN\" />
+    <Folder Include="CEN\Tables\" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+    <Folder Include="STG\" />
+    <Folder Include="STG\Tables\" />
+    <Folder Include="CEN\Views\" />
+    <Folder Include="dbo\Functions\" />
+    <Folder Include="STG\Stored Procedures\" />
+    <Folder Include="dbo\Stored Procedures\" />
+    <Folder Include="Security\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="CEN\Tables\Dashboards.sql" />
+    <Build Include="CEN\Tables\Datasets.sql" />
+    <Build Include="CEN\Tables\Reports.sql" />
+    <Build Include="CEN\Tables\Workspaces.sql" />
+    <Build Include="CEN\Tables\DataSources.sql" />
+    <Build Include="CEN\Tables\ActivityLogs.sql" />
+    <Build Include="CEN\Tables\Capacities.sql" />
+    <Build Include="CEN\Tables\GatewayDataSource.sql" />
+    <Build Include="CEN\Tables\Gateway.sql" />
+    <Build Include="CEN\Tables\CapacityWorkloads.sql" />
+    <Build Include="CEN\Tables\GatewayDataSourceStatus.sql" />
+    <Build Include="dbo\Tables\Dim_Date.sql" />
+    <Build Include="STG\Tables\ActivityLogs.sql" />
+    <Build Include="STG\Tables\Capacities.sql" />
+    <Build Include="STG\Tables\CapacityWorkloads.sql" />
+    <Build Include="STG\Tables\Dashboards.sql" />
+    <Build Include="STG\Tables\Datasets.sql" />
+    <Build Include="STG\Tables\Gateway.sql" />
+    <Build Include="STG\Tables\GatewayDataSource.sql" />
+    <Build Include="STG\Tables\GatewayDataSourceStatus.sql" />
+    <Build Include="STG\Tables\Reports.sql" />
+    <Build Include="STG\Tables\Workspaces.sql" />
+    <Build Include="CEN\Views\vw_WorkspaceItemsDetails.sql" />
+    <Build Include="CEN\Views\WorkspaceItemsDetails.sql" />
+    <Build Include="CEN\Views\vw_ActivityLogs.sql" />
+    <Build Include="CEN\Views\vw_Workspaces.sql" />
+    <Build Include="CEN\Views\vw_Capacities.sql" />
+    <Build Include="CEN\Views\vw_GatewayDataSource.sql" />
+    <Build Include="CEN\Views\vw_Gateway.sql" />
+    <Build Include="dbo\Functions\fn_getWAustDateTime.sql" />
+    <Build Include="STG\Stored Procedures\usp_merge_GatewayDataSource.sql" />
+    <Build Include="STG\Stored Procedures\usp_merge_GatewayDataSourceStatus.sql" />
+    <Build Include="STG\Stored Procedures\usp_merge_Reports.sql" />
+    <Build Include="STG\Stored Procedures\usp_merge_Workspaces.sql" />
+    <Build Include="STG\Stored Procedures\usp_run_all_mergesp.sql" />
+    <Build Include="dbo\Stored Procedures\sp_UpdateDimDate.sql" />
+    <Build Include="STG\Stored Procedures\usp_merge_ActivityLogs.sql" />
+    <Build Include="STG\Stored Procedures\usp_merge_Capacities.sql" />
+    <Build Include="STG\Stored Procedures\usp_merge_CapacityWorkloads.sql" />
+    <Build Include="STG\Stored Procedures\usp_merge_Dashboards.sql" />
+    <Build Include="STG\Stored Procedures\usp_merge_Datasets.sql" />
+    <Build Include="STG\Stored Procedures\usp_merge_DataSources.sql" />
+    <Build Include="STG\Stored Procedures\usp_merge_Gateway.sql" />
+    <Build Include="Security\CEN.sql" />
+    <Build Include="Security\STG.sql" />
+  </ItemGroup>
+</Project>

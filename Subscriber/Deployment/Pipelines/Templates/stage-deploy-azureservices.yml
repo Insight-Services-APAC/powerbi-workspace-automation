@@ -1,0 +1,30 @@
+parameters:
+- name: stage_name
+  type: string
+- name: variable_template_name
+  type: string
+- name: run_condition
+  type: string
+- name: environment
+  type: string
+  
+stages:
+- stage: ${{ parameters.stage_name }}
+  condition: ${{ parameters.run_condition }}
+  variables:
+  - template: ../Variables/${{ parameters.variable_template_name }}.yml
+
+  jobs:
+  - job: infrastructure
+    displayName: Infrastructure Deploy
+    pool:
+      vmImage: 'windows-latest'
+
+    steps:
+    - task: AzureCLI@2
+      displayName: AZ CLI - Bicep Deploy
+      inputs:
+        azureSubscription: ${{ variables.azSubscription }}
+        scriptType: 'ps'
+        scriptPath: $(Build.SourcesDirectory)/Deployment/Infrastructure/Deploy-AzureResource.ps1
+        arguments: ${{ parameters.environment }}

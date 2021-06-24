@@ -1,0 +1,31 @@
+trigger:
+  branches:
+    include:
+    - main
+    - develop
+  paths:
+    include:
+    - Deployment/Infrastructure/*
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+
+# Release to NPE
+- template: Templates/stage-deploy-azureservices.yml
+  parameters:
+    stage_name: 'non_prod'
+    variable_template_name: npe-variables
+    run_condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
+    environment: 'Development'
+
+# Release to Production
+- template: Templates/stage-deploy-azureservices.yml
+  parameters:
+    stage_name: 'prod'
+    variable_template_name: prd-variables
+    run_condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    environment: 'Production'
+      
+    
