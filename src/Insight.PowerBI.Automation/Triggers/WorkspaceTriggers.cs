@@ -101,7 +101,7 @@ namespace Insight.PBIAutomation.Triggers
             return new OkObjectResult(groups);
         }
 
-        [FunctionName("WorkspaceList")]
+        [FunctionName("Workspaces")]
         public async Task<IActionResult> WorkspaceList(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             [CosmosDB(

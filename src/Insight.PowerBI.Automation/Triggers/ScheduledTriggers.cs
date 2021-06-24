@@ -17,8 +17,8 @@ namespace Insight.PBIAutomation.Triggers
             this.workspaceExtract = workspaceExtract;
         }
 
-        [FunctionName("ActivitiesTrigger")]
-        public async Task<IActionResult> ActivitiesScheduled(
+        [FunctionName("ActivitiesExtract")]
+        public async Task<IActionResult> ActivitiesTriggerAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
@@ -38,16 +38,16 @@ namespace Insight.PBIAutomation.Triggers
         }
 
         [FunctionName("ActivitiesScheduled")]
-        public async Task<IActionResult> ActivitiesScheduled(
-            [TimerTrigger("0 0 1 * * *", RunOnStartup = false, UseMonitor = true)] TimerInfo timer,
+        public async Task ActivitiesScheduledAsync(
+            [TimerTrigger("0 0 1 * * *", RunOnStartup = false)] TimerInfo timer,
             ILogger log)
         {
             log.LogInformation("ActivitiesScheduled activated.");
-            var a = await workspaceExtract.ActivitiesAsync(DateTime.UtcNow.AddDays(-1));
-            return new OkObjectResult(a);
+            await workspaceExtract.ActivitiesAsync(DateTime.UtcNow.AddDays(-1));
         }
-        [FunctionName("WorkspacesTrigger")]
-        public async Task<IActionResult> WorkspacesScheduled(
+
+        [FunctionName("WorkspacesExtract")]
+        public async Task<IActionResult> WorkspacesTriggerAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
@@ -57,13 +57,12 @@ namespace Insight.PBIAutomation.Triggers
         }
 
         [FunctionName("WorkspacesScheduled")]
-        public async Task<IActionResult> WorkspacesScheduled(
-            [TimerTrigger("0 0 1 * * *", RunOnStartup = false, UseMonitor = true)] TimerInfo timer,
+        public async Task WorkspacesScheduledAsync(
+            [TimerTrigger("0 0 1 * * *", RunOnStartup = false)] TimerInfo timer,
             ILogger log)
         {
             log.LogInformation("WorkspacesScheduled activated.");
             await workspaceExtract.WorkspacesAsync();
-            return new OkResult();
         }
     }
 }
