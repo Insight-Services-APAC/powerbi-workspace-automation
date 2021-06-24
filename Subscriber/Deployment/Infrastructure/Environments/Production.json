@@ -10,7 +10,7 @@
                                                          "DeploymentSP":  {
                                                                               "Enable":  false,
                                                                               "Name":  "AdsGFDeploySPw",
-                                                                              "ObjectId": "ca6f74a8-6912-489d-96a0-3ff0951fe836",
+                                                                              "ClientId": "18a23006-2b70-4ce0-a247-ca93ebea168a",
                                                                               "ApplyNamePostFix":  true
                                                                           }                                                     
                                                      },
@@ -20,11 +20,11 @@
                                                      "Domain":  "microsoft.com",
                                                      "TenantId":  "6c637512-c417-4e78-9d62-b61258e4b619",
                                                      "Location":  "australiaeast",
-                                                     "Name":  "PBI_Foundations",
+                                                     "Name":  "PBI_Foundations_PRD",
                                                      "AADUser":  "willem.vanaswegen@insight.com",
                                                      "AADUserObjectID": "5826e305-6aba-41bc-982a-870886f97ede",
                                                      "ServicePrincipal_Deployment":  "AdsGoFastDeploymentSPw",
-                                                     "ResourcePrefix": "pbiauedev"
+                                                     "ResourcePrefix": "pbiaueprd"
                                                  },
                                "AzureLoginOptions":  {
                                                          "UseInteractiveAzCliLogin":  true

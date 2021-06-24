@@ -14,8 +14,10 @@
     [Datasets]              NVARCHAR (MAX) NULL,
     [Dataflows]             NVARCHAR (MAX) NULL,
     [Workbooks]             NVARCHAR (MAX) NULL,
-    [DateRetrieved]         NVARCHAR (MAX) NULL
+    [DateRetrieved]         NVARCHAR (MAX) DEFAULT (sysdatetime()) NULL
 );
+
+
 
 
 

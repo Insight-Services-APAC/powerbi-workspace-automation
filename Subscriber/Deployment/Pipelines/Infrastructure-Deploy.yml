@@ -1,11 +1,11 @@
-trigger:
-  branches:
-    include:
-    - main
-    - develop
-  paths:
-    include:
-    - Deployment/Infrastructure/*
+trigger: none
+  # branches:
+  #   include:
+  #   - main
+  #   - develop
+  # paths:
+  #   include:
+  #   - Deployment/Infrastructure/*
 
 pool:
   vmImage: ubuntu-latest

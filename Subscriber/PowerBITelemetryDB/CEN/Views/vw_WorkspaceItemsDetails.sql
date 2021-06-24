@@ -2,12 +2,13 @@
 
 
 
+
 CREATE VIEW  [CEN].[vw_WorkspaceItemsDetails] AS
 
 
 
 select 
-     W.[ID]									   as WorkspaceID
+     W.[Workspace_ID]									   as WorkspaceID
 	,DSet.[Dataset_Id]                                 as Datasets_Id                               
 	,DSet.[Name]                               as Datasets_Name                             
 	,DSet.[ConfiguredBy]                       as Datasets_ConfiguredBy                     
@@ -54,7 +55,7 @@ select
 	,D.[DateRetrieved]                         as Dashboards_DateRetrieved  
 
 from [CEN].[Workspaces] W
-join [CEN].[Datasets] DSet on W.[Id] =DSet.[Workspace_ID]
+join [CEN].[Datasets] DSet on W.[Workspace_Id] =DSet.[Workspace_ID]
 --join [CEN].[DataSources] DSource on W.[Id]= DSource.[WorkspaceID]
-join [CEN].[Reports] R on  W.[Id]=R.[Workspace_ID]
-join [CEN].[Dashboards] D on W.[Id]=D.[Workspace_ID]
+join [CEN].[Reports] R on  W.[Workspace_Id]=R.[Workspace_ID]
+join [CEN].[Dashboards] D on W.[Workspace_Id]=D.[Workspace_ID]

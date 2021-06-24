@@ -16,7 +16,7 @@ if($env:EnvOpts_CD_Services_DataFactory_Enable -eq "True")
     {
         Write-Host "Register ADF MSI in Key Vault"
         $msi = (az resource list --name $factoryname --resource-group $env:EnvOpts_CD_ResourceGroup_Name --query "[].identity.principalId")
-        $msi[1]
+        #$msi[1]
         az keyvault set-policy --name $vaultName --secret-permissions get list --object-id $msi[1]
         
         Write-Host "Create key vault linked service"

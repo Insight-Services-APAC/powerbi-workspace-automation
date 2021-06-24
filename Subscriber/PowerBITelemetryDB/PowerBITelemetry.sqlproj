@@ -116,5 +116,6 @@
     <Build Include="STG\Stored Procedures\usp_merge_Gateway.sql" />
     <Build Include="Security\CEN.sql" />
     <Build Include="Security\STG.sql" />
+    <Build Include="Security\ADF_STG_Role.sql" />
   </ItemGroup>
 </Project>
