@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [CEN].[Workspaces] (
-    [Id]                    NVARCHAR (MAX) NULL,
+    [Workspace_Id]          NVARCHAR (MAX) NULL,
     [Name]                  NVARCHAR (MAX) NULL,
     [IsReadOnly]            NVARCHAR (MAX) NULL,
     [IsOnDedicatedCapacity] NVARCHAR (MAX) NULL,
@@ -16,4 +16,6 @@
     [Workbooks]             NVARCHAR (MAX) NULL,
     [DateRetrieved]         NVARCHAR (MAX) NULL
 );
+
+
 

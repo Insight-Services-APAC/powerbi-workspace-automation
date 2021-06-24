@@ -22,9 +22,16 @@ resource stg 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   }
 }
 
-//Add initial container
-resource cont 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-02-01' = {
+//Add initial containers
+resource cont1 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-02-01' = {
   name: '${stg.name}/default/raw'
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
+resource cont2 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-02-01' = {
+  name: '${stg.name}/default/landing'
   properties: {
     publicAccess: 'None'
   }

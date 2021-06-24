@@ -5,14 +5,14 @@ BEGIN
 
 	MERGE [CEN].[Workspaces] T
 	USING [STG].[Workspaces] S 
-	ON  T.[Id]=S.[Workspace_Id]
+	ON  T.[Workspace_Id]=S.[Workspace_Id]
 	
 	WHEN MATCHED THEN
 	UPDATE SET [DateRetrieved]=S.[DateRetrieved]
 	
 	WHEN NOT MATCHED BY TARGET 
 	THEN 
-	INSERT ( [Id]                    
+	INSERT ( [Workspace_Id]                    
             ,[Name]                  
             ,[IsReadOnly]            
             ,[IsOnDedicatedCapacity] 

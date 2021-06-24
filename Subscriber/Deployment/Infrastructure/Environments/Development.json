@@ -10,7 +10,7 @@
                                                          "DeploymentSP":  {
                                                                               "Enable":  false,
                                                                               "Name":  "AdsGFDeploySPw",
-                                                                              "ObjectId": "ca6f74a8-6912-489d-96a0-3ff0951fe836",
+                                                                              "ClientId": "18a23006-2b70-4ce0-a247-ca93ebea168a",
                                                                               "ApplyNamePostFix":  true
                                                                           }                                                     
                                                      },
