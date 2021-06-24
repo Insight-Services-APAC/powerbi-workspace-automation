@@ -1,0 +1,29 @@
+ 
+
+trigger: none
+  # branches:
+  #   include:
+  #   - main
+  #   - develop
+  # paths:
+  #   include:
+  #   - PowerBITelemetryDB/PowerBITelemetry.sln
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+
+# Release to NPE
+- template: Templates/stage-deploy-telemetrydb.yml
+  parameters:
+    stage_name: 'non_prod'
+    variable_template_name: npe-variables
+    run_condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
+
+# Release to Production
+- template: Templates/stage-deploy-telemetrydb.yml
+  parameters:
+    stage_name: 'prod'
+    variable_template_name: prd-variables
+    run_condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')

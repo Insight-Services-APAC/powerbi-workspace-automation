@@ -1,0 +1,58 @@
+parameters:
+- name: dependencies
+  type: object
+  default: ['build']
+- name: stage_name
+  type: string
+- name: variable_template_name
+  type: string
+- name: run_condition
+  type: string
+  
+stages:
+- stage: ${{ parameters.stage_name }}
+  condition: ${{ parameters.run_condition }}
+  variables:
+  - template: ../Variables/${{ parameters.variable_template_name }}.yml
+
+  jobs:
+  - job: build_db
+    pool:
+      demands: msbuild
+      vmImage: 'windows-latest'
+    steps:
+    - task: MSBuild@1
+      displayName: 'Build TelemetryDB'
+      continueOnError: true
+      inputs:
+        solution: PowerBITelemetryDB/PowerBITelemetry.sqlproj
+
+    - publish: PowerBITelemetryDB/bin/Debug
+      artifact: sql_telemetrydb
+
+  - job: 'deploy_db'
+    dependsOn: build_db 
+    condition: succeeded()
+    pool:
+      demands: msbuild
+      vmImage: 'windows-2019'
+    steps:
+    - download: current
+      artifact: sql_telemetrydb
+
+    - task: AzureKeyVault@2
+      displayName: 'Get Admin Passw'
+      inputs:
+        azureSubscription: ${{ variables.azSubscription }}
+        KeyVaultName: ${{ variables.keyVault }}
+        secretsFilter: 'ASQL-PASSW'
+
+    - task: SqlAzureDacpacDeployment@1
+      displayName: 'Azure SQL DacpacTask'
+      inputs:
+        azureSubscription: ${{ variables.azSubscription }}
+        ServerName: ${{ variables.sqlServer }}
+        DatabaseName: ${{ variables.dbName }}
+        SqlUsername: ${{ variables.sqlAdminUser }}
+        SqlPassword: '$(ASQL-PASSW)'
+        DacpacFile: '$(Pipeline.Workspace)/sql_telemetrydb/PowerBITelemetry.dacpac'
