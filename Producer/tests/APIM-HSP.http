@@ -1,0 +1,22 @@
+@subscriptionKey = ??
+
+### Get My Subscription
+GET https://hss-syd-dev-api-powerbi.azure-api.net/powerbi-hsp/MySubscription
+Ocp-Apim-Subscription-Key: {{subscriptionKey}}
+
+### Create new workspace
+POST https://hss-syd-dev-api-powerbi.azure-api.net/powerbi-hsp/Workspace
+Ocp-Apim-Subscription-Key: {{subscriptionKey}}
+content-type: application/json
+
+{
+    "workSpaceName": "Demo210625-1"
+}
+
+### Get Workspace
+GET https://hss-syd-dev-api-powerbi.azure-api.net/powerbi-hsp/Workspace?name=WACHS-Demo210625-1
+Ocp-Apim-Subscription-Key: {{subscriptionKey}}
+
+### Get Workspaces Extended Information
+GET https://hss-syd-dev-api-powerbi.azure-api.net/powerbi-hsp/Workspaces
+Ocp-Apim-Subscription-Key: {{subscriptionKey}}
