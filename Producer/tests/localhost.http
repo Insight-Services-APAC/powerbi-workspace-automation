@@ -1,0 +1,19 @@
+@workspaceName = "Demo210625-1"
+@subscriptionId = "WACHS"
+
+PUT http://localhost:7071/api/Workspace?id=WACHS
+content-type: application/json
+
+{
+    "workSpaceName": "Demo210625-1"
+}
+###
+
+POST http://localhost:7071/api/Workspace?id=WACHS
+content-type: application/json
+
+{
+    "workSpaceName": "Demo210625-1"
+}
+###
+GET http://localhost:7071/api/Workspace?id=WACHS&name=WACHS-Demo210625-1

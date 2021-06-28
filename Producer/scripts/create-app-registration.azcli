@@ -1,0 +1,14 @@
+keyVaultName=hss-syd-key-powerbi
+spName=sp-powerbi-automation
+
+sp=$(az ad sp list --display-name "Power BI Service" | jq ".[0]")
+pbiAppId=$(echo $sp | jq ".appId" -r)
+tenantReadWriteAll=$(echo $sp | jq '.oauth2Permissions[] | select(.value == "Tenant.ReadWrite.All").id' -r)
+# tenantReadWriteAll="28379fa9-8596-4fd9-869e-cb60a93b5d84"
+appReg=$(az ad sp create-for-rbac -n $spName --skip-assignment true --years 1)
+spSecret=$(echo $appReg | jq '.password' -r)
+appId=$(echo $appReg | jq '.appId' -r)
+
+az keyvault secret set --name $spName --vault-name $keyVaultName --value $spSecret
+az ad app permission add --id $appId --api-permissions "${tenantReadWriteAll}=Role" --api $pbiAppId
+az ad app permission grant --id $appId --api $pbiAppId
