@@ -26,7 +26,7 @@ stages:
           -AadObjectId ${{ variables.aadObjectId }}
 
   - job: FunctionApp
-    condition: true
+    condition: false
     displayName: FunctionApp Build and Deploy
     pool:
       vmImage: 'windows-latest'
@@ -45,19 +45,15 @@ stages:
   - job: APIManagement
     condition: true
     displayName: APIM Deploy
+    variables:
+      LOCAL_TEMPLATE_DIRECTORY: $(Build.SourcesDirectory)/Producer/apim
     pool:
-      vmImage: 'windows-latest'
+      vmImage: 'ubuntu-latest'
     steps:
     - task: AzureCLI@2
       displayName: AZ CLI - APIM ARM Linked Template Deployment
       inputs:
         azureSubscription: ${{ variables.azSubscription }}
         scriptType: 'pscore'
-        workingDirectory: $(Build.SourcesDirectory)\Producer
-        scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-apim.ps1
-        arguments:
-          -ApimName ${{ variables.apim }} `
-          -ResourceGroup ${{ variables.rg }} `
-          -SourcePath $(Build.SourcesDirectory)\Producer\apim `
-          -StorageAccount ${{ variables.storage }} `
-          -FunctionName ${{ variables.func }}
+        workingDirectory: $(Build.SourcesDirectory)/Producer
+        scriptPath: $(Build.SourcesDirectory)/Producer/scripts/deploy-apim.sh
