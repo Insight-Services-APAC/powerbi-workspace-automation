@@ -1,3 +1,9 @@
+variables:
+  azSubscription: sp-apim-ado
+  ClientPrefix: wch
+  Env: dev
+  AadObjectId: 9fb4af47-1091-4da1-a27c-db0e7f85401c
+
 stages:
 - stage: Infrastructure
   jobs:
@@ -5,12 +11,6 @@ stages:
     displayName: Infrastructure Deploy
     pool:
       vmImage: 'windows-latest'
-    variables:
-      azSubscription: sp-apim-ado
-      ClientPrefix: wch
-      Env: dev
-      AadObjectId: 9fb4af47-1091-4da1-a27c-db0e7f85401c
-
     steps:
     - task: AzureCLI@2
       displayName: AZ CLI - Bicep Deploy
@@ -19,9 +19,9 @@ stages:
         scriptType: 'ps'
         workingDirectory: $(Build.SourcesDirectory)\Producer
         scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-infra.ps1
-        arguments: |
-          -ClientPrefix ${{ variables.ClientPrefix }}
-          -Env ${{ variables.Env }}
+        arguments:
+          -ClientPrefix ${{ variables.ClientPrefix }} `
+          -Env ${{ variables.Env }} `
           -AadObjectId ${{ variables.AadObjectId }}
 
 - stage: FunctionApp
@@ -40,7 +40,7 @@ stages:
         scriptType: 'ps'
         workingDirectory: $(Build.SourcesDirectory)\Producer
         scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-func.ps1
-        arguments: |
-          -ClientPrefix ${{ variables.ClientPrefix }}
-          -Env ${{ variables.Env }}
+        arguments:
+          -ClientPrefix ${{ variables.ClientPrefix }} `
+          -Env ${{ variables.Env }} `
           -AadObjectId ${{ variables.AadObjectId }}
