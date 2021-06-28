@@ -10,7 +10,7 @@ $LOCATION="australiaeast"
 
 az group create -n $RESOURCE_GROUP -l $LOCATION
 Write-Host "$RESOURCE_GROUP deployment"
-$out=(az deployment group create --template-file "infra\infra.bicep" `
+$out=(az deployment group create --template-file "infra\infra.json" `
     --resource-group $RESOURCE_GROUP `
     --parameters clientPrefix=$ClientPrefix `
     --parameters env=$Env `
