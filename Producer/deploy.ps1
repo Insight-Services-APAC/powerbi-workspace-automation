@@ -6,7 +6,7 @@ param (
     [Parameter()] [switch] $KeyVaultConfig,
     [Parameter()] [switch] $FuncDeploy,
     [Parameter(Mandatory=$true)] [switch] $clientPrefix="test",
-    [ParameterSet("dev", "tst", "prd")]
+    [ValidateSet("dev", "tst", "prd")]
     [Parameter(Mandatory=$true)] [switch] $env="dev",
     [Parameter()] [switch] $aadObjectId
 )
