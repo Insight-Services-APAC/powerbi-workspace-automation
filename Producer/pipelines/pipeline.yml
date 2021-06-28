@@ -8,7 +8,6 @@ stages:
 
   jobs:
   - job: Infrastructure
-    condition: false
     displayName: Infrastructure Deploy
     pool:
       vmImage: 'windows-latest'
@@ -26,7 +25,8 @@ stages:
           -AadObjectId ${{ variables.aadObjectId }}
 
   - job: FunctionApp
-    condition: false
+    dependsOn: Infrastructure
+    condition: succeeded()
     displayName: FunctionApp Build and Deploy
     pool:
       vmImage: 'windows-latest'
@@ -43,7 +43,8 @@ stages:
           -FunctionApp ${{ variables.func }}
   
   - job: APIManagement
-    condition: true
+    dependsOn: FunctionApp
+    condition: succeeded()
     displayName: APIM Deploy
     variables:
       LOCAL_TEMPLATE_DIRECTORY: $(Build.SourcesDirectory)/Producer/apim
