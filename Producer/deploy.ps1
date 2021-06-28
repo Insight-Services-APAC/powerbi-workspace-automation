@@ -18,7 +18,7 @@ $kv = "${clientPrefix}-syd-${env}-key-powerbi"
 $templates = "apim"
 
 if ($KeyVaultConfig) {
-    .\scripts\create-secretsps1 -KeyVaultName $kv
+    .\scripts\create-app-registration.ps1 -KeyVaultName $kv
 }
 
 if ($InfraDeploy) {
