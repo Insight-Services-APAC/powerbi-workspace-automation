@@ -5,10 +5,10 @@ param (
     [Parameter()] [switch] $InfraDeploy,
     [Parameter()] [switch] $KeyVaultConfig,
     [Parameter()] [switch] $FuncDeploy,
-    [Parameter(Mandatory=$true)] [string] $clientPrefix="test",
+    [Parameter()] [string] $clientPrefix="wch",
     [ValidateSet("dev", "tst", "prd")]
-    [Parameter(Mandatory=$true)] [string] $env,
-    [Parameter()] [string] $aadObjectId
+    [Parameter()] [string] $env = "dev",
+    [Parameter()] [string] $aadObjectId = "9fb4af47-1091-4da1-a27c-db0e7f85401c"
 )
 
 $storage = "${clientPrefix}syd${env}stapowerbi"
