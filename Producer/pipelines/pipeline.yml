@@ -52,7 +52,7 @@ stages:
       displayName: AZ CLI - APIM ARM Linked Template Deployment
       inputs:
         azureSubscription: ${{ variables.azSubscription }}
-        scriptType: 'ps'
+        scriptType: 'pscore'
         workingDirectory: $(Build.SourcesDirectory)\Producer
         scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-apim.ps1
         arguments:
