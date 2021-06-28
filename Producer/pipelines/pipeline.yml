@@ -17,7 +17,7 @@ stages:
       inputs:
         azureSubscription: ${{ variables.azSubscription }}
         scriptType: 'ps'
-        scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-infra.sh
+        scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-infra.ps1
         arguments: |
           -ClientPrefix ${{ variables.ClientPrefix }}
           -Env ${{ variables.Env }}
@@ -37,7 +37,7 @@ stages:
       inputs:
         azureSubscription: ${{ variables.azSubscription }}
         scriptType: 'ps'
-        scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-func.sh
+        scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-func.ps1
         arguments: |
           -ClientPrefix ${{ variables.ClientPrefix }}
           -Env ${{ variables.Env }}
