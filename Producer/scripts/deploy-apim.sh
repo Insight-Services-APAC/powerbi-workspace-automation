@@ -37,7 +37,7 @@ FUNC_KEY=$(az functionapp keys list --name $FUNCTION_APP \
     --resource-group $RESOURCE_GROUP \
     --query "functionKeys.default" -o tsv)
 
-NAMED_VALUES='{\"hsssyddevfunpowerbikey\": \"'$FUNC_KEY'\"}'
+NAMED_VALUES='{"hsssyddevfunpowerbikey": "'$FUNC_KEY'"}'
 
 
 
