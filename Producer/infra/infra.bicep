@@ -1,12 +1,12 @@
 param clientPrefix string = 'hss'
 param region string = 'syd'
 
+param aadObjectId string
 @allowed([
   'dev'
   'tst'
   'prd'
 ])
-param aadObjectId string
 param env string = 'dev'
 param publisherEmail string = 'paul.smithdale@insight.com'
 param publisherName string = 'Paul Smithdale'

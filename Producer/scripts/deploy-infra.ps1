@@ -17,7 +17,3 @@ $out=(az deployment group create --template-file "infra\infra.bicep" `
     --parameters aadObjectId=$AadObjectId `
     --verbose)
 
-Out-File deploy.json $out -Force
-$outObj =  $($out | ConvertFrom-Json)
-Write-Host $outObj.properties.outputs
-Write-Host $outObj | ConvertTo-Json
