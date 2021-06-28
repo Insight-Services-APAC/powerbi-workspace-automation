@@ -6,7 +6,7 @@ stages:
     pool:
       vmImage: 'windows-latest'
     variables:
-      azSubscription: powerbiautomation
+      azSubscription: sp-apim-ado
       ClientPrefix: wch
       Env: dev
       AadObjectId: 9fb4af47-1091-4da1-a27c-db0e7f85401c
