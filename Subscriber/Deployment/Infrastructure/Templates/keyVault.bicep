@@ -29,7 +29,10 @@ param accessPolicies array = [
 ]
 
 var sku = 'standard'
-var secretName = 'ASQL-PASSW'
+var ASQLSecretName = 'ASQL-PASSW'
+var ASQLADFLSSecretName = 'ADF-LS-ASQL-PBITelemetry'
+var HSSAPIKey = 'HSS-API-Key'
+
 
 resource keyvault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   name: vaultName
@@ -48,9 +51,32 @@ resource keyvault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   }
 }
 
-resource secret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
-  name: '${vaultName}/${secretName}'
+resource secret1 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
+  name: '${vaultName}/${ASQLSecretName}'
   properties: {
     value: ASQLAdminPassw
   }
+  dependsOn: [
+    keyvault
+  ]
+}
+
+resource secret2 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
+  name: '${vaultName}/${ASQLADFLSSecretName}'
+  properties: {
+    value: ''
+  }
+  dependsOn: [
+    keyvault
+  ]
+}
+
+resource secret3 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
+  name: '${vaultName}/${HSSAPIKey}'
+  properties: {
+    value: '' 
+  }
+  dependsOn: [
+    keyvault
+  ]
 }

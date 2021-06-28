@@ -26,5 +26,5 @@ stages:
       inputs:
         azureSubscription: ${{ variables.azSubscription }}
         scriptType: 'ps'
-        scriptPath: $(Build.SourcesDirectory)/Deployment/Infrastructure/Deploy-AzureResource.ps1
+        scriptPath: $(Build.SourcesDirectory)/Subscriber/Deployment/Infrastructure/Deploy-AzureResource.ps1
         arguments: ${{ parameters.environment }}
