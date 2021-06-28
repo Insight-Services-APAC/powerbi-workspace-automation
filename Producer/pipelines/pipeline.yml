@@ -5,6 +5,7 @@ stages:
 - stage: Development
   jobs:
   - job: Infrastructure
+    condition: false
     displayName: Infrastructure Deploy
     pool:
       vmImage: 'windows-latest'
@@ -22,37 +23,38 @@ stages:
           -AadObjectId ${{ variables.aadObjectId }}
 
   - job: FunctionApp
-    dependsOn: Infrastructure
-    condition: succeeded()
+    condition: true
     displayName: FunctionApp Build and Deploy
     pool:
       vmImage: 'windows-latest'
     steps:
     - task: AzureCLI@2
-      displayName: AZ CLI - Bicep Deploy
+      displayName: AZ CLI - Function App Build and Deploy
       inputs:
         azureSubscription: ${{ variables.azSubscription }}
         scriptType: 'ps'
         workingDirectory: $(Build.SourcesDirectory)\Producer
         scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-func.ps1
         arguments:
-          -ClientPrefix ${{ variables.ClientPrefix }} `
-          -Env ${{ variables.Env }}
+          -ResourceGroup ${{ variables.rg }} `
+          -FunctionApp ${{ variables.func }}
   
   - job: APIManagement
-    dependsOn: FunctionApp
-    condition: succeeded()
+    condition: true
     displayName: APIM Deploy
     pool:
       vmImage: 'windows-latest'
     steps:
     - task: AzureCLI@2
-      displayName: AZ CLI - Bicep Deploy
+      displayName: AZ CLI - APIM ARM Linked Template Deployment
       inputs:
         azureSubscription: ${{ variables.azSubscription }}
         scriptType: 'ps'
         workingDirectory: $(Build.SourcesDirectory)\Producer
         scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-apim.ps1
         arguments:
+          -ApimName ${{ variables.apim }} `
           -ResourceGroup ${{ variables.rg }} `
-          -FunctionApp ${{ variables.func }}
+          -SourcePath $(Build.SourcesDirectory)\Producer\apim `
+          -StorageAccount ${{ variables.storage }} `
+          -FunctionName ${{ variables.func }}
