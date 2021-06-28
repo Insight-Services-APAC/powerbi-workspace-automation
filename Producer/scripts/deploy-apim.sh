@@ -31,7 +31,7 @@ output=$(az storage blob upload-batch \
 
 
 echo "*********DEPLOYMENT VARIABLES*********"
-sed -i "s/test-syd-dev-fun-powerbi/$FUNCTION_APP/g" LOCAL_TEMPLATE_DIRECTORY/policies/*.xml
+sed -i "s/test-syd-dev-fun-powerbi/$FUNCTION_APP/g" $LOCAL_TEMPLATE_DIRECTORY/policies/*.xml
 
 $FUNC_KEY = $(az functionapp keys list --name $FUNCTION_APP `
     --resource-group $RESOURCE_GROUP `
