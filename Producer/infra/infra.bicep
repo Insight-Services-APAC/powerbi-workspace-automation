@@ -32,6 +32,16 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
 }
 
+resource storageContainerTemplate 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
+  name: '${storageAccount.name}/default/templates'
+  properties:{
+    publicAccess: 'None'
+  }
+  dependsOn: [
+    storageAccount
+  ]
+}
+
 resource appInsights 'Microsoft.Insights/components@2020-02-02-preview' = {
   name: appInsightsName
   location: location
@@ -201,6 +211,9 @@ resource cosmosDbSql 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-04
       throughput: 400
     }
   }
+  dependsOn: [
+    cosmosDb
+  ]
 }
 
 resource subscriptionContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-04-15' = {
@@ -215,6 +228,9 @@ resource subscriptionContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabas
       }
     }
   }
+  dependsOn: [
+    cosmosDbSql
+  ]
 }
 
 resource workspaceContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-04-15' = {
@@ -230,6 +246,9 @@ resource workspaceContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/
       defaultTtl: 2592000
     }
   }
+  dependsOn: [
+    cosmosDbSql
+  ]
 }
 
 resource activitiesContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-04-15' = {
@@ -245,6 +264,12 @@ resource activitiesContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases
       defaultTtl: 2592000
     }
   }
+  dependsOn: [
+    cosmosDbSql
+  ]
 }
 
 output instrumentationKey string = appInsights.properties.InstrumentationKey
+output resourceGroupName  string = resourceGroup().name
+output storageAccountName string = storageAccount.name
+output functionName string = funcApp.name
