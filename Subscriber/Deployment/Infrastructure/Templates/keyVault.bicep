@@ -1,4 +1,3 @@
-
 //parameters
 param location string = resourceGroup().location
 param vaultName string = 'keyVault${uniqueString(resourceGroup().id)}' // must be globally unique

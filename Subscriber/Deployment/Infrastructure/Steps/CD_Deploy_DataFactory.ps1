@@ -15,14 +15,19 @@ if($env:EnvOpts_CD_Services_DataFactory_Enable -eq "True")
     if($kvFlag)
     {
         Write-Host "Register ADF MSI in Key Vault"
-        $msi = (az resource list --name $factoryname --resource-group $env:EnvOpts_CD_ResourceGroup_Name --query "[].identity.principalId")
+        $msi = (az resource list --name $factoryname --resource-group $env:EnvOpts_CD_ResourceGroup_Name --query "[].identity.principalId" --out tsv)
         #$msi[1]
-        az keyvault set-policy --name $vaultName --secret-permissions get list --object-id $msi[1]
+        az keyvault set-policy --name $vaultName --secret-permissions get list --object-id $msi
         
         Write-Host "Create key vault linked service"
         az deployment group create -g $env:EnvOpts_CD_ResourceGroup_Name -f ././Templates/dataFactory_KeyVault_LinkedService.bicep --parameters factoryName=$factoryname vaultName=$vaultName
 
-        #az datafactory linked-service create --factory-name $factoryname --name "keyvault01" --resource-group $env:EnvOpts_CD_ResourceGroup_Name --properties "{\"type\":\"AzureKeyVaultLinkedService\",\"typeProperties\":{\"baseUrl\":\"https://$vaultName.vault.azure.net\"}}"     
+        Write-Host "Register ADF MSI in ADLS"
+        $storageaccountname =  $env:EnvOpts_CD_ResourceGroup_ResourcePrefix.ToString()+$env:EnvOpts_CD_Services_Storage_ADLS_Name.ToString()
+        $subId = (az account show --subscription 'Visual Studio Enterprise Subscription' --query "id")
+        $scope = "/subscriptions/$subId/resourceGroups/$env:EnvOpts_CD_ResourceGroup_Name/providers/Microsoft.Storage/storageAccounts/$storageaccountname"
+        
+        az role assignment create --assignee $msi --role 'Storage Blob Data Contributor' --scope $scope   
     
     }
 
