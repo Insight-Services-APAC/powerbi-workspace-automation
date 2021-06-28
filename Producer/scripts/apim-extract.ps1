@@ -16,6 +16,6 @@ dotnet ./reskit/netcoreapp3.1/apimtemplate.dll extract `
     --baseFileName "ApimArm" `
     --policyXMLBaseUrl "REPLACE_ME" --policyXMLSasToken "REPLACE_ME" `
     --linkedTemplatesBaseUrl "REPLACE_ME" --linkedTemplatesSasToken "REPLACE_ME" `
-    --paramServiceUrl=false --paramNamedValue=true --notIncludeNamedValue=false
+    --paramServiceUrl=true --paramNamedValue=true --notIncludeNamedValue=false
 
 Write-Host "**Clean-up**"

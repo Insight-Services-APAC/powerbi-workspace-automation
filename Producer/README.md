@@ -11,7 +11,7 @@
 - [x] ARM deployment
 - KeyVault Config
 - [x] Function App deployment
-- APIM Deployment
+- [x] APIM Deployment
 
 ## Post-deployment
 - Generate the HSS Subscription

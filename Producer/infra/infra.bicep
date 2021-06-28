@@ -6,6 +6,7 @@ param region string = 'syd'
   'tst'
   'prd'
 ])
+param aadObjectId string
 param env string = 'dev'
 param publisherEmail string = 'paul.smithdale@insight.com'
 param publisherName string = 'Paul Smithdale'
@@ -159,7 +160,17 @@ resource funcAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2021-04-01-p
     accessPolicies: [
       {
         objectId: funcApp.identity.principalId
-        tenantId: funcApp.identity.tenantId
+        tenantId: subscription().tenantId
+        permissions: {
+          secrets: [
+            'get'
+            'list'
+          ]
+        }
+      }
+      {
+        objectId: aadObjectId
+        tenantId: subscription().tenantId
         permissions: {
           secrets: [
             'get'

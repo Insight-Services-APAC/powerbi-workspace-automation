@@ -1,6 +1,7 @@
 param (
     [Parameter()] [string] $ClientPrefix,
-    [Parameter()] [string] $Env
+    [Parameter()] [string] $Env,
+    [Parameter()] [string] $AadObjectId
 )
 $ClientPrefix = $ClientPrefix.ToLower()
 $Env = $Env.ToLower()
@@ -13,6 +14,7 @@ $out=(az deployment group create --template-file "infra\infra.bicep" `
     --resource-group $RESOURCE_GROUP `
     --parameters clientPrefix=$ClientPrefix `
     --parameters env=$Env `
+    --parameters aadObjectId=$AadObjectId `
     --verbose)
 
 Out-File deploy.json $out -Force
