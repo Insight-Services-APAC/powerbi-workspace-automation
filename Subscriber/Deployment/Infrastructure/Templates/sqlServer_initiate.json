@@ -1,0 +1,177 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.63.48766",
+      "templateHash": "3512531817781267566"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "sqlServerName": {
+      "type": "string",
+      "defaultValue": "uniquestorage001"
+    },
+    "sqlAdministratorLogin": {
+      "type": "string"
+    },
+    "sqlAADAdminUser": {
+      "type": "string"
+    },
+    "sqlAADAdminUserObjectId": {
+      "type": "string"
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "vnetName": {
+      "type": "string"
+    },
+    "vaultName": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "subId": "[subscription().subscriptionId]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "deploySQL",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "sqlServerName": {
+            "value": "[parameters('sqlServerName')]"
+          },
+          "sqlAdministratorLogin": {
+            "value": "[parameters('sqlAdministratorLogin')]"
+          },
+          "sqlAdministratorLoginPassword": {
+            "reference": {
+              "keyVault": {
+                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subId'), resourceGroup().name), 'Microsoft.KeyVault/vaults', parameters('vaultName'))]"
+              },
+              "secretName": "ASQL-PASSW"
+            }
+          },
+          "sqlAADAdminUser": {
+            "value": "[parameters('sqlAADAdminUser')]"
+          },
+          "sqlAADAdminUserObjectId": {
+            "value": "[parameters('sqlAADAdminUserObjectId')]"
+          },
+          "tenantId": {
+            "value": "[parameters('tenantId')]"
+          },
+          "vnetName": {
+            "value": "[parameters('vnetName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.63.48766",
+              "templateHash": "8277793156827833409"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "sqlServerName": {
+              "type": "string",
+              "defaultValue": "uniquestorage001"
+            },
+            "sqlAdministratorLogin": {
+              "type": "string"
+            },
+            "sqlAdministratorLoginPassword": {
+              "type": "secureString"
+            },
+            "sqlAADAdminUser": {
+              "type": "string"
+            },
+            "sqlAADAdminUserObjectId": {
+              "type": "string"
+            },
+            "tenantId": {
+              "type": "string"
+            },
+            "vnetName": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Microsoft.Sql/servers",
+              "apiVersion": "2020-11-01-preview",
+              "name": "[parameters('sqlServerName')]",
+              "location": "[parameters('location')]",
+              "identity": {
+                "type": "None"
+              },
+              "properties": {
+                "administratorLogin": "[parameters('sqlAdministratorLogin')]",
+                "administratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]",
+                "version": "12.0",
+                "minimalTlsVersion": "1.2",
+                "publicNetworkAccess": "Enabled",
+                "administrators": {
+                  "administratorType": "ActiveDirectory",
+                  "principalType": "User",
+                  "login": "[parameters('sqlAADAdminUser')]",
+                  "sid": "[parameters('sqlAADAdminUserObjectId')]",
+                  "tenantId": "[parameters('tenantId')]",
+                  "azureADOnlyAuthentication": false
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Sql/servers/virtualNetworkRules",
+              "apiVersion": "2020-11-01-preview",
+              "name": "[format('{0}/{1}', parameters('sqlServerName'), format('{0}-data', parameters('vnetName')))]",
+              "properties": {
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/data', parameters('vnetName')), '/')[0], split(format('{0}/data', parameters('vnetName')), '/')[1])]",
+                "ignoreMissingVnetServiceEndpoint": false
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Sql/servers/firewallRules",
+              "apiVersion": "2020-11-01-preview",
+              "name": "[format('{0}/{1}', parameters('sqlServerName'), 'AllowAllWindowsAzureIps')]",
+              "properties": {
+                "startIpAddress": "0.0.0.0",
+                "endIpAddress": "0.0.0.0"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

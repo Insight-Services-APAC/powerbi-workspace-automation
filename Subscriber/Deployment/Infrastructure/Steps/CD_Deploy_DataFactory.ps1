@@ -5,7 +5,7 @@ if($env:EnvOpts_CD_Services_DataFactory_Enable -eq "True")
 {
     $factoryname = $env:EnvOpts_CD_ResourceGroup_ResourcePrefix.ToString()+$env:EnvOpts_CD_Services_DataFactory_Name
     Write-Host "Creating Data Factory: $factoryname"
-    az deployment group create -g $env:EnvOpts_CD_ResourceGroup_Name -f ././Templates/dataFactory.bicep --parameters location=$env:EnvOpts_CD_ResourceGroup_Location factoryName=$factoryname 
+    az deployment group create -g $env:EnvOpts_CD_ResourceGroup_Name -f ././Templates/dataFactory.json --parameters location=$env:EnvOpts_CD_ResourceGroup_Location factoryName=$factoryname 
 
     #Check if key vault exists to register add access policy for ADF MSI
     $vaultName = $env:EnvOpts_CD_ResourceGroup_ResourcePrefix.ToString()+$env:EnvOpts_CD_Services_KeyVault_Name
@@ -20,7 +20,7 @@ if($env:EnvOpts_CD_Services_DataFactory_Enable -eq "True")
         az keyvault set-policy --name $vaultName --secret-permissions get list --object-id $msi
         
         Write-Host "Create key vault linked service"
-        az deployment group create -g $env:EnvOpts_CD_ResourceGroup_Name -f ././Templates/dataFactory_KeyVault_LinkedService.bicep --parameters factoryName=$factoryname vaultName=$vaultName
+        az deployment group create -g $env:EnvOpts_CD_ResourceGroup_Name -f ././Templates/dataFactory_KeyVault_LinkedService.json --parameters factoryName=$factoryname vaultName=$vaultName
 
         Write-Host "Register ADF MSI in ADLS"
         $storageaccountname =  $env:EnvOpts_CD_ResourceGroup_ResourcePrefix.ToString()+$env:EnvOpts_CD_Services_Storage_ADLS_Name.ToString()
