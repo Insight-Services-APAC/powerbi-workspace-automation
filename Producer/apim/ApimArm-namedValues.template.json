@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApimServiceName": {
+      "type": "string"
+    },
+    "PolicyXMLSasToken": {
+      "type": "string"
+    },
+    "PolicyXMLBaseUrl": {
+      "type": "string"
+    },
+    "NamedValues": {
+      "type": "object"
+    }
+  },
+  "resources": [
+    {
+      "properties": {
+        "tags": [
+          "key",
+          "function",
+          "auto"
+        ],
+        "secret": true,
+        "displayName": "hss-syd-dev-fun-powerbi-key",
+        "value": "[parameters('NamedValues').hsssyddevfunpowerbikey]"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/hss-syd-dev-fun-powerbi-key')]",
+      "type": "Microsoft.ApiManagement/service/namedValues",
+      "apiVersion": "2021-01-01-preview"
+    }
+  ]
+}

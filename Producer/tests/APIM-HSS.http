@@ -1,0 +1,4 @@
+@subscriptionKey = ??
+
+https://hss-syd-dev-api-powerbi.azure-api.net/powerbi-hss/todo
+Ocp-Apim-Subscription-Key: {{subscriptionKey}}

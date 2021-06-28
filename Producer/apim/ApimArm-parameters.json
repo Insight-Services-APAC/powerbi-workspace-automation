@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApimServiceName": {
+      "value": "REPLACE_ME"
+    },
+    "LinkedTemplatesBaseUrl": {
+      "value": "REPLACE_ME"
+    },
+    "LinkedTemplatesSasToken": {
+      "value": "REPLACE_ME"
+    },
+    "PolicyXMLBaseUrl": {
+      "value": "REPLACE_ME"
+    },
+    "PolicyXMLSasToken": {
+      "value": "REPLACE_ME"
+    },
+    "NamedValues": {
+      "value": {
+        "hsssyddevfunpowerbikey": null
+      }
+    }
+  },
+  "resources": []
+}
