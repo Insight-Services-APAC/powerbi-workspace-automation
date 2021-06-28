@@ -175,6 +175,7 @@ resource funcAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2021-04-01-p
           secrets: [
             'get'
             'list'
+            'set'
           ]
         }
       }
