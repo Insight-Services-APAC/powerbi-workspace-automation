@@ -47,6 +47,11 @@ stages:
     displayName: APIM Deploy
     variables:
       LOCAL_TEMPLATE_DIRECTORY: $(Build.SourcesDirectory)/Producer/apim
+      APIM_NAME: ${{ variables.apim }}
+      RESOURCE_GROUP: ${{ variables.rg }}
+      STORAGE_ACCOUNT: ${{ variables.storage }}
+      FUNCTION_APP: ${{ variables.func }}
+
     pool:
       vmImage: 'ubuntu-latest'
     steps:
