@@ -3,12 +3,14 @@ param (
     [Parameter()] [switch] $ApimExtract,
     [Parameter()] [switch] $ApimDeploy,
     [Parameter()] [switch] $InfraDeploy,
-    [Parameter()] [switch] $KeyVaultConfig
+    [Parameter()] [switch] $KeyVaultConfig,
+    [Parameter()] [switch] $FuncDeploy,
+    [Parameter(Mandatory=$true)] [switch] $clientPrefix="test",
+    [ParameterSet("dev", "tst", "prd")]
+    [Parameter(Mandatory=$true)] [switch] $env="dev",
+    [Parameter()] [switch] $aadObjectId
 )
 
-$aadObjectId="???"
-$clientPrefix="test"
-$env="dev"
 $storage = "${clientPrefix}syd${env}stapowerbi"
 $apim = "${clientPrefix}-syd-${env}-api-powerbi"
 $rg = "${clientPrefix}-syd-${env}-arg-powerbi"
@@ -22,6 +24,10 @@ if ($KeyVaultConfig) {
 }
 
 if ($InfraDeploy) {
+    if (-Not $aadObjectId) {
+        Write-Error "Must provide $aadObjectId"
+        Exit 1
+    }
     .\scripts\deploy-infra.ps1 `
         -ClientPrefix $clientPrefix `
         -Env $env `
@@ -45,4 +51,10 @@ if ($ApimExtract) {
         -ResourceGroup $resourceGroup `
         -SourceApim $apimName `
         -ExtractPath $templates
+}
+
+if ($FuncDeploy) {
+    .\scripts\deploy-func.ps1 `
+        -ResourceGroup $rg `
+        -FunctionApp $func
 }
