@@ -4,15 +4,7 @@ stages:
 - stage: Development
 
   variables:
-    azSubscription: sp-apim-ado
-    clientPrefix: wch
-    env: dev
-    aadObjectId: 9fb4af47-1091-4da1-a27c-db0e7f85401c
-    storage: "${{ variables.clientPrefixPrefix }}syd${{ variables.env }}stapowerbi"
-    apim: "${{ variables.clientPrefixPrefix }}-syd-${{ variables.env }}-api-powerbi"
-    rg: "${{ variables.clientPrefixPrefix }}-syd-${{ variables.env }}-arg-powerbi"
-    func: "${{ variables.clientPrefixPrefix }}-syd-${{ variables.env }}-fun-powerbi"
-    kv: "${{ variables.clientPrefixPrefix }}-syd-${{ variables.env }}-key-powerbi"
+    - template: variables.yml
 
   jobs:
   - job: Infrastructure
