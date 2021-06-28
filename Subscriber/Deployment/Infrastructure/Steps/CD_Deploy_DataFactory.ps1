@@ -15,9 +15,9 @@ if($env:EnvOpts_CD_Services_DataFactory_Enable -eq "True")
     if($kvFlag)
     {
         Write-Host "Register ADF MSI in Key Vault"
-        $msi = (az resource list --name $factoryname --resource-group $env:EnvOpts_CD_ResourceGroup_Name --query "[].identity.principalId")
+        $msi = (az resource list --name $factoryname --resource-group $env:EnvOpts_CD_ResourceGroup_Name --query "[].identity.principalId" --out tsv)
         #$msi[1]
-        az keyvault set-policy --name $vaultName --secret-permissions get list --object-id $msi[1]
+        az keyvault set-policy --name $vaultName --secret-permissions get list --object-id $msi
         
         Write-Host "Create key vault linked service"
         az deployment group create -g $env:EnvOpts_CD_ResourceGroup_Name -f ././Templates/dataFactory_KeyVault_LinkedService.bicep --parameters factoryName=$factoryname vaultName=$vaultName

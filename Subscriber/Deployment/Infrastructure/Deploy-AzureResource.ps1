@@ -27,17 +27,17 @@ if ($env:EnvOpts_CD_Enable -eq "True")
 
     Write-Host "Starting CD.."
 
-    # Invoke-Expression -Command  ".\Steps\CD_Deploy_VNet.ps1"
+    Invoke-Expression -Command  ".\Steps\CD_Deploy_VNet.ps1"
 
-    # Invoke-Expression -Command  ".\Steps\CD_Deploy_KeyVault.ps1"
+    Invoke-Expression -Command  ".\Steps\CD_Deploy_KeyVault.ps1"
 
-    # Invoke-Expression -Command  ".\Steps\CD_Deploy_ADLS.ps1"
+    Invoke-Expression -Command  ".\Steps\CD_Deploy_ADLS.ps1"
 
     Invoke-Expression -Command  ".\Steps\CD_Deploy_DataFactory.ps1"
 
-    # Invoke-Expression -Command  ".\Steps\CD_Deploy_SQLServer.ps1"
+    Invoke-Expression -Command  ".\Steps\CD_Deploy_SQLServer.ps1"
 
-    # Invoke-Expression -Command  ".\Steps\CD_Deploy_SQLDatabase.ps1"
+    Invoke-Expression -Command  ".\Steps\CD_Deploy_SQLDatabase.ps1"
 
     Write-Host "Finishing CD.."
 
