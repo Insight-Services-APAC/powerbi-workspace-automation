@@ -1,0 +1,44 @@
+stages:
+- stage: Infrastructure
+  jobs:
+  - job: infrastructure
+    displayName: Infrastructure Deploy
+    pool:
+      vmImage: 'windows-latest'
+    variables:
+      azSubscription: powerbiautomation
+      ClientPrefix: wch
+      Env: dev
+      AadObjectId: 9fb4af47-1091-4da1-a27c-db0e7f85401c
+
+    steps:
+    - task: AzureCLI@2
+      displayName: AZ CLI - Bicep Deploy
+      inputs:
+        azureSubscription: ${{ variables.azSubscription }}
+        scriptType: 'ps'
+        scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-infra.sh
+        arguments: |
+          -ClientPrefix ${{ variables.ClientPrefix }}
+          -Env ${{ variables.Env }}
+          -AadObjectId ${{ variables.AadObjectId }}
+
+- stage: FunctionApp
+  dependsOn: Infrastructure
+  condition: succeeded()
+  jobs:
+  - job:
+    displayName: FunctionApp Build and Deploy
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - task: AzureCLI@2
+      displayName: AZ CLI - Bicep Deploy
+      inputs:
+        azureSubscription: ${{ variables.azSubscription }}
+        scriptType: 'ps'
+        scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-func.sh
+        arguments: |
+          -ClientPrefix ${{ variables.ClientPrefix }}
+          -Env ${{ variables.Env }}
+          -AadObjectId ${{ variables.AadObjectId }}
