@@ -3,6 +3,7 @@
 - AZ PowerShell Module
 - DOTNET SDK
 - VS Code
+- Bicep (az bicep install)
 
 ## Pre-deployment
 
@@ -24,3 +25,21 @@
     - Environment should be either "Development" or "Production" which will then inform the sript which config file to use   
 - Review the deployment processing
 - If all is successful, then review the created resources in the target Azure resource group.
+
+### Database Deployment
+- Manual via Visual Studio or via Azure Pipeline
+
+### ADF Deployment
+- This step is currently done via manual ARM template deployment after the infra deployment.
+- Open the ADF web portal and select "Manage" and then "ARM Template" from the navigation.
+- Select "Import ARM Template" which will open a seperate portal window to run an ARM Template.
+- Select the "Build your own template in the editor" which will then provie a window with an option to upload a template.
+- Browse to the "arm_template.json" file in the "./Sybscriber/Data Factory" folder.
+- Once uploaded, update the template paramters to point to the correctly name Azure resources and Save the file.
+- Select the resource group when prompted and click "Review & Create".
+- This will execute the ARM template and add the linked services, datasets and pipelines into the ADF instance.
+- Validate the creation of these components after completion.
+
+## Post-Deployment
+- Set Keyvault secret values
+- Test ADF linked service connections and pipelines
