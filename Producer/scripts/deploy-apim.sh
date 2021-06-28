@@ -38,10 +38,10 @@ FUNC_KEY=$(az functionapp keys list --name $FUNCTION_APP \
     --query "functionKeys.default" -o tsv)
 
 NAMED_VALUES='{"hsssyddevfunpowerbikey": "'$FUNC_KEY'"}'
+echo $NAMED_VALUES
 
 
-
-echo *********DEPLOYMENT*********"
+echo "*********DEPLOYMENT*********"
 
 END=`date -u -d "30 minutes" '+%Y-%m-%dT%H:%MZ'`
 SAS=`az storage container generate-sas -n $CONTAINER --https-only --permissions dlrw --expiry $END --connection-string $CONNECTION -o tsv`
@@ -54,6 +54,6 @@ az deployment group create \
   --parameters "LinkedTemplatesSasToken=?$SAS" \
   --parameters "PolicyXMLBaseUrl=$ROOT_FILE_URL/policies" \
   --parameters "PolicyXMLSasToken=?$SAS" \
-  --parameters "NamedValues=$NAMED_VALUES" \
-  --parameters "FunctionBackendName=$FUNCTION_APP" \
-  --verbose
+  --parameters NamedValues="$NAMED_VALUES" \
+  --parameters "FunctionBackendName=$FUNCTION_APP"
+
