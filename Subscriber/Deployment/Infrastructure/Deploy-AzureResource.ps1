@@ -7,7 +7,7 @@ Param(
     $Environment = "Development"
 )
 
-Set-Location '.\.\Deployment\Infrastructure'
+Set-Location '.\SubScriber\Deployment\Infrastructure'
 
 Write-Host "Retrieving deployment variables for: $Environment"
 [Environment]::SetEnvironmentVariable("ENVIRONMENT_NAME", $Environment)
@@ -31,9 +31,9 @@ if ($env:EnvOpts_CD_Enable -eq "True")
 
     Invoke-Expression -Command  ".\Steps\CD_Deploy_KeyVault.ps1"
 
-    Invoke-Expression -Command  ".\Steps\CD_Deploy_DataFactory.ps1"
-
     Invoke-Expression -Command  ".\Steps\CD_Deploy_ADLS.ps1"
+
+    Invoke-Expression -Command  ".\Steps\CD_Deploy_DataFactory.ps1"
 
     Invoke-Expression -Command  ".\Steps\CD_Deploy_SQLServer.ps1"
 

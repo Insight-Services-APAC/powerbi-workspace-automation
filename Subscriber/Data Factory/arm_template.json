@@ -1,0 +1,1926 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "pbiauedevadf01"
+        },
+        "keyvault01_properties_typeProperties_baseUrl": {
+            "type": "string",
+            "defaultValue": "https://pbiauedevkv02.vault.azure.net"
+        },
+        "ADLS001_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://pbiauedevstore001.dfs.core.windows.net"
+        },
+        "ASQL001_properties_typeProperties_connectionString_secretName": {
+            "type": "string",
+            "defaultValue": "@linkedService().kvsecret"
+        },
+        "RESTAPI_HSS_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://hss-syd-dev-api-powerbi.azure-api.net/powerbi-hss/"
+        },
+        "RESTAPI_HSP_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://hss-syd-dev-api-powerbi.azure-api.net/powerbi-hsp"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/keyvault01')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureKeyVault",
+                "typeProperties": {
+                    "baseUrl": "[parameters('keyvault01_properties_typeProperties_baseUrl')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Load Inventory')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Land Inventory Data",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "RestSource",
+                                "httpRequestTimeout": "00:01:40",
+                                "requestInterval": "00.00:00:00.010",
+                                "requestMethod": "GET"
+                            },
+                            "sink": {
+                                "type": "JsonSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "JsonWriteSettings",
+                                    "filePattern": "setOfObjects"
+                                }
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "RestAPI_GET_HSP",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "relativeURL": "Workspaces"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ADLS_JSON",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "container_name": "landing",
+                                    "folder_name": "Inventory",
+                                    "file_name": "Inventory.json"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Extract Workspaces",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Land Inventory Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "JsonSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "JsonReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".txt"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "path": "$['id']"
+                                        },
+                                        "sink": {
+                                            "name": "Workspace_Id",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['name']"
+                                        },
+                                        "sink": {
+                                            "name": "Name",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['isReadOnly']"
+                                        },
+                                        "sink": {
+                                            "name": "IsReadOnly",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['isOnDedicatedCapacity']"
+                                        },
+                                        "sink": {
+                                            "name": "IsOnDedicatedCapacity",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['capacityId']"
+                                        },
+                                        "sink": {
+                                            "name": "CapacityId",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['description']"
+                                        },
+                                        "sink": {
+                                            "name": "Description",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['type']"
+                                        },
+                                        "sink": {
+                                            "name": "Type",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['state']"
+                                        },
+                                        "sink": {
+                                            "name": "State",
+                                            "type": "String"
+                                        }
+                                    }
+                                ],
+                                "collectionReference": "",
+                                "mapComplexValuesToString": true
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ADLS_JSON",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "container_name": "landing",
+                                    "folder_name": "Inventory",
+                                    "file_name": "Inventory.json"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ADLS_CSV",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "FileName": "Workspaces.csv",
+                                    "containerName": "raw",
+                                    "FolderName": "Inventory"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Users",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Land Inventory Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "JsonSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "JsonReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".txt"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "path": "$['id']"
+                                        },
+                                        "sink": {
+                                            "name": "workspace_id",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['groupUserAccessRight']"
+                                        },
+                                        "sink": {
+                                            "name": "groupUserAccessRight",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['emailAddress']"
+                                        },
+                                        "sink": {
+                                            "name": "emailAddress",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['displayName']"
+                                        },
+                                        "sink": {
+                                            "name": "displayName",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['identifier']"
+                                        },
+                                        "sink": {
+                                            "name": "identifier",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['graphId']"
+                                        },
+                                        "sink": {
+                                            "name": "graphId",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['principalType']"
+                                        },
+                                        "sink": {
+                                            "name": "principalType",
+                                            "type": "String"
+                                        }
+                                    }
+                                ],
+                                "collectionReference": "$['users']",
+                                "mapComplexValuesToString": true
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ADLS_JSON",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "container_name": "landing",
+                                    "folder_name": "Inventory",
+                                    "file_name": "Inventory.json"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ADLS_CSV",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "FileName": "Workspace_Users.csv",
+                                    "containerName": "raw",
+                                    "FolderName": "Inventory"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Reports",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Land Inventory Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "JsonSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "JsonReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".txt"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "path": "$['id']"
+                                        },
+                                        "sink": {
+                                            "name": "Workspace_Id",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['id']"
+                                        },
+                                        "sink": {
+                                            "name": "Report_Id",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['name']"
+                                        },
+                                        "sink": {
+                                            "name": "Name",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['webUrl']"
+                                        },
+                                        "sink": {
+                                            "name": "WebUrl",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['embedUrl']"
+                                        },
+                                        "sink": {
+                                            "name": "EmbedUrl",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['datasetId']"
+                                        },
+                                        "sink": {
+                                            "name": "Dataset_Id",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['description']"
+                                        },
+                                        "sink": {
+                                            "name": "Description",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['createdBy']"
+                                        },
+                                        "sink": {
+                                            "name": "CreatedBy",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['modifiedBy']"
+                                        },
+                                        "sink": {
+                                            "name": "ModifiedBy",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['createdDateTime']"
+                                        },
+                                        "sink": {
+                                            "name": "CreatedDateTime",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['modifiedDateTime']"
+                                        },
+                                        "sink": {
+                                            "name": "ModifiedDateTime",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['endorsementDetails']"
+                                        },
+                                        "sink": {
+                                            "name": "EndorsementDetails",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['sensitivityLabel']"
+                                        },
+                                        "sink": {
+                                            "name": "SensitivityLabel",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['reportType']"
+                                        },
+                                        "sink": {
+                                            "name": "ReportType",
+                                            "type": "String"
+                                        }
+                                    }
+                                ],
+                                "collectionReference": "$['reports']",
+                                "mapComplexValuesToString": true
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ADLS_JSON",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "container_name": "landing",
+                                    "folder_name": "Inventory",
+                                    "file_name": "Inventory.json"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ADLS_CSV",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "FileName": "Reports.csv",
+                                    "containerName": "raw",
+                                    "FolderName": "Inventory"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Dashboards",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Land Inventory Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "JsonSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "JsonReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".txt"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "path": "$['id']"
+                                        },
+                                        "sink": {
+                                            "name": "Workspace_Id",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['id']"
+                                        },
+                                        "sink": {
+                                            "name": "Dashboard_Id",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['displayName']"
+                                        },
+                                        "sink": {
+                                            "name": "DisplayName",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['isReadOnly']"
+                                        },
+                                        "sink": {
+                                            "name": "IsReadOnly",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['embedUrl']"
+                                        },
+                                        "sink": {
+                                            "name": "EmbedUrl",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['tiles']"
+                                        },
+                                        "sink": {
+                                            "name": "Tiles",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['dataClassification']"
+                                        },
+                                        "sink": {
+                                            "name": "DataClassification",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['sensitivityLabel']"
+                                        },
+                                        "sink": {
+                                            "name": "SensitivityLabel",
+                                            "type": "String"
+                                        }
+                                    }
+                                ],
+                                "collectionReference": "$['dashboards']",
+                                "mapComplexValuesToString": true
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ADLS_JSON",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "container_name": "landing",
+                                    "folder_name": "Inventory",
+                                    "file_name": "Inventory.json"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ADLS_CSV",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "FileName": "Dashboards.csv",
+                                    "containerName": "raw",
+                                    "FolderName": "Inventory"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Datasets",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Land Inventory Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "JsonSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "JsonReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".txt"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "path": "$['id']"
+                                        },
+                                        "sink": {
+                                            "name": "Workspace_Id",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['id']"
+                                        },
+                                        "sink": {
+                                            "name": "Dataset_Id",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['name']"
+                                        },
+                                        "sink": {
+                                            "name": "Name",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['configuredBy']"
+                                        },
+                                        "sink": {
+                                            "name": "ConfiguredBy",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['addRowsAPIEnabled']"
+                                        },
+                                        "sink": {
+                                            "name": "AddRowsAPIEnabled",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['webUrl']"
+                                        },
+                                        "sink": {
+                                            "name": "WebUrl",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['IsRefreshable']"
+                                        },
+                                        "sink": {
+                                            "name": "IsRefreshable",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['IsEffectiveIdentityRequired']"
+                                        },
+                                        "sink": {
+                                            "name": "IsEffectiveIdentityRequired",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['IsEffectiveIdentityRolesRequired']"
+                                        },
+                                        "sink": {
+                                            "name": "IsEffectiveIdentityRolesRequired",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['IsOnPremGatewayRequired']"
+                                        },
+                                        "sink": {
+                                            "name": "IsOnPremGatewayRequired",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['Encryption']"
+                                        },
+                                        "sink": {
+                                            "name": "Encryption",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['CreatedDate']"
+                                        },
+                                        "sink": {
+                                            "name": "CreatedDate",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['ContentProviderType']"
+                                        },
+                                        "sink": {
+                                            "name": "ContentProviderType",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['CreateReportEmbedURL']"
+                                        },
+                                        "sink": {
+                                            "name": "CreateReportEmbedURL",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['QnaEmbedURL']"
+                                        },
+                                        "sink": {
+                                            "name": "QnaEmbedURL",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['description']"
+                                        },
+                                        "sink": {
+                                            "name": "Description",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['endorsementDetails']"
+                                        },
+                                        "sink": {
+                                            "name": "EndorsementDetails",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['datasourceUsages']"
+                                        },
+                                        "sink": {
+                                            "name": "DatasourceUsages",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['upstreamDataflows']"
+                                        },
+                                        "sink": {
+                                            "name": "UpstreamDataflows",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['sensitivityLabel']"
+                                        },
+                                        "sink": {
+                                            "name": "SensitivityLabel",
+                                            "type": "String"
+                                        }
+                                    }
+                                ],
+                                "collectionReference": "$['datasets']",
+                                "mapComplexValuesToString": true
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ADLS_JSON",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "container_name": "landing",
+                                    "folder_name": "Inventory",
+                                    "file_name": "Inventory.json"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ADLS_CSV",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "FileName": "Datasets.csv",
+                                    "containerName": "raw",
+                                    "FolderName": "Inventory"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Stage Workspaces",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Extract Workspaces",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "Truncate Table STG.Workspaces",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ADLS_CSV",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "FileName": "Workspaces.csv",
+                                    "containerName": "raw",
+                                    "FolderName": "Inventory"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ASQL_Table",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "schemaName": "STG",
+                                    "tableName": "Workspaces",
+                                    "kvSecret": "ADF-LS-ASQL-PBITelemetry"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Stage Reports",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Reports",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "Truncate Table STG.Reports",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ADLS_CSV",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "FileName": "Reports.csv",
+                                    "containerName": "raw",
+                                    "FolderName": "Inventory"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ASQL_Table",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "schemaName": "STG",
+                                    "tableName": "Reports",
+                                    "kvSecret": "ADF-LS-ASQL-PBITelemetry"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Stage Dashboards",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Dashboards",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "Truncate Table STG.Dashboards",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ADLS_CSV",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "FileName": "Dashboards.csv",
+                                    "containerName": "raw",
+                                    "FolderName": "Inventory"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ASQL_Table",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "schemaName": "STG",
+                                    "tableName": "Dashboards",
+                                    "kvSecret": "ADF-LS-ASQL-PBITelemetry"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Stage Datasets",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Datasets",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "Truncate Table STG.Datasets",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ADLS_CSV",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "FileName": "Datasets.csv",
+                                    "containerName": "raw",
+                                    "FolderName": "Inventory"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ASQL_Table",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "schemaName": "STG",
+                                    "tableName": "Datasets",
+                                    "kvSecret": "ADF-LS-ASQL-PBITelemetry"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Merge Workspaces",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Stage Workspaces",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[STG].[usp_merge_Workspaces]"
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "ASQL001",
+                            "type": "LinkedServiceReference",
+                            "parameters": {
+                                "kvsecret": "ADF-LS-ASQL-PBITelemetry"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Merge Reports",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Stage Reports",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[STG].[usp_merge_Reports]"
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "ASQL001",
+                            "type": "LinkedServiceReference",
+                            "parameters": {
+                                "kvsecret": "ADF-LS-ASQL-PBITelemetry"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Merge Dashboards",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Stage Dashboards",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[STG].[usp_merge_Dashboards]"
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "ASQL001",
+                            "type": "LinkedServiceReference",
+                            "parameters": {
+                                "kvsecret": "ADF-LS-ASQL-PBITelemetry"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Merge Datasets",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Stage Datasets",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[STG].[usp_merge_Datasets]"
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "ASQL001",
+                            "type": "LinkedServiceReference",
+                            "parameters": {
+                                "kvsecret": "ADF-LS-ASQL-PBITelemetry"
+                            }
+                        }
+                    }
+                ],
+                "annotations": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/RestAPI_GET_HSP')]",
+                "[concat(variables('factoryId'), '/datasets/ADLS_JSON')]",
+                "[concat(variables('factoryId'), '/datasets/ADLS_CSV')]",
+                "[concat(variables('factoryId'), '/datasets/ASQL_Table')]",
+                "[concat(variables('factoryId'), '/linkedServices/ASQL001')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/RestAPI_GET_HSS')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "RESTAPI_HSS",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "relativeURL": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": {
+                        "value": "@dataset().relativeURL",
+                        "type": "Expression"
+                    }
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/RESTAPI_HSS')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ADLS001')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('ADLS001_properties_typeProperties_url')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ASQL001')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "parameters": {
+                    "kvsecret": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "connectionString": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "keyvault01",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": {
+                            "value": "[parameters('ASQL001_properties_typeProperties_connectionString_secretName')]",
+                            "type": "Expression"
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/keyvault01')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ADLS_JSON')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLS001",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "container_name": {
+                        "type": "string"
+                    },
+                    "folder_name": {
+                        "type": "string"
+                    },
+                    "file_name": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "Json",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@dataset().file_name",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().folder_name",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().container_name",
+                            "type": "Expression"
+                        }
+                    }
+                },
+                "schema": {}
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ADLS001')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ADLS_CSV')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLS001",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "FileName": {
+                        "type": "string"
+                    },
+                    "containerName": {
+                        "type": "string"
+                    },
+                    "FolderName": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@dataset().FileName",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().FolderName",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().containerName",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": "|",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ADLS001')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ASQL_Table')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ASQL001",
+                    "type": "LinkedServiceReference",
+                    "parameters": {
+                        "kvsecret": {
+                            "value": "@dataset().kvSecret",
+                            "type": "Expression"
+                        }
+                    }
+                },
+                "parameters": {
+                    "schemaName": {
+                        "type": "string"
+                    },
+                    "tableName": {
+                        "type": "string"
+                    },
+                    "kvSecret": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": {
+                        "value": "@dataset().schemaName",
+                        "type": "Expression"
+                    },
+                    "table": {
+                        "value": "@dataset().tableName",
+                        "type": "Expression"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ASQL001')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Load Usage')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Stage Activity",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Extract Usage Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "Truncate Table STG.ActivityLogs",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ADLS_CSV",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "FileName": {
+                                        "value": "@concat('Activity_',formatDateTime(convertFromUtc(utcnow(),'W. Australia Standard Time'),'yyyyMMdd'))",
+                                        "type": "Expression"
+                                    },
+                                    "containerName": "raw",
+                                    "FolderName": "Activity"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ASQL_Table",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "schemaName": "STG",
+                                    "tableName": "ActivityLogs",
+                                    "kvSecret": "ADF-LS-ASQL-PBITelemetry"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Extract Usage Data",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Land Usage Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "JsonSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "JsonReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".txt"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mapComplexValuesToString": true
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ADLS_JSON",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "container_name": "landing",
+                                    "folder_name": "Activity",
+                                    "file_name": "Activity.json"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ADLS_CSV",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "FileName": {
+                                        "value": "@concat('Activity_',formatDateTime(convertFromUtc(utcnow(),'W. Australia Standard Time'),'yyyyMMdd'))",
+                                        "type": "Expression"
+                                    },
+                                    "containerName": "raw",
+                                    "FolderName": "Activity"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Land Usage Data",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Set Retrieval Date",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "RestSource",
+                                "httpRequestTimeout": "00:01:40",
+                                "requestInterval": "00.00:00:00.010",
+                                "requestMethod": "GET"
+                            },
+                            "sink": {
+                                "type": "JsonSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "JsonWriteSettings",
+                                    "filePattern": "setOfObjects"
+                                }
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "RestAPI_GET_HSS",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "relativeURL": {
+                                        "value": "@concat('Activities?from=',variables('fetchDate'))",
+                                        "type": "Expression"
+                                    }
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ADLS_JSON",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "container_name": "landing",
+                                    "folder_name": "Activity",
+                                    "file_name": "Activity.json"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Set Retrieval Date",
+                        "type": "SetVariable",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "fetchDate",
+                            "value": {
+                                "value": "@formatDateTime(adddays(convertFromUtc(utcnow(),'W. Australia Standard Time'),-2),'yyyy-MM-ddT00:00:00Z')",
+                                "type": "Expression"
+                            }
+                        }
+                    }
+                ],
+                "variables": {
+                    "fetchDate": {
+                        "type": "String"
+                    }
+                },
+                "annotations": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/ADLS_CSV')]",
+                "[concat(variables('factoryId'), '/datasets/ASQL_Table')]",
+                "[concat(variables('factoryId'), '/datasets/ADLS_JSON')]",
+                "[concat(variables('factoryId'), '/datasets/RestAPI_GET_HSS')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/RESTAPI_HSS')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "RestService",
+                "typeProperties": {
+                    "url": "[parameters('RESTAPI_HSS_properties_typeProperties_url')]",
+                    "enableServerCertificateValidation": true,
+                    "authenticationType": "Anonymous",
+                    "authHeaders": {
+                        "Ocp-Apim-Subscription-Key": {
+                            "type": "AzureKeyVaultSecret",
+                            "store": {
+                                "referenceName": "keyvault01",
+                                "type": "LinkedServiceReference"
+                            },
+                            "secretName": "HSS-API-Key"
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/RESTAPI_HSP')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "RestService",
+                "typeProperties": {
+                    "url": "[parameters('RESTAPI_HSP_properties_typeProperties_url')]",
+                    "enableServerCertificateValidation": true,
+                    "authenticationType": "Anonymous",
+                    "authHeaders": {
+                        "Ocp-Apim-Subscription-Key": {
+                            "type": "AzureKeyVaultSecret",
+                            "store": {
+                                "referenceName": "keyvault01",
+                                "type": "LinkedServiceReference"
+                            },
+                            "secretName": "HSP-API-KEY"
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/RestAPI_GET_HSP')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "RESTAPI_HSP",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "relativeURL": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": {
+                        "value": "@dataset().relativeURL",
+                        "type": "Expression"
+                    }
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/RESTAPI_HSP')]"
+            ]
+        }
+    ]
+}
