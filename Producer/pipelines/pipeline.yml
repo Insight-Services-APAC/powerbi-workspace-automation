@@ -1,13 +1,10 @@
 variables:
-  azSubscription: sp-apim-ado
-  ClientPrefix: wch
-  Env: dev
-  AadObjectId: 9fb4af47-1091-4da1-a27c-db0e7f85401c
+  - template: variables.yml
 
 stages:
-- stage: Infrastructure
+- stage: Development
   jobs:
-  - job: infrastructure
+  - job: Infrastructure
     displayName: Infrastructure Deploy
     pool:
       vmImage: 'windows-latest'
@@ -20,15 +17,13 @@ stages:
         workingDirectory: $(Build.SourcesDirectory)\Producer
         scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-infra.ps1
         arguments:
-          -ClientPrefix ${{ variables.ClientPrefix }} `
-          -Env ${{ variables.Env }} `
-          -AadObjectId ${{ variables.AadObjectId }}
+          -ClientPrefix ${{ variables.clientPrefix }} `
+          -Env ${{ variables.env }} `
+          -AadObjectId ${{ variables.aadObjectId }}
 
-- stage: FunctionApp
-  dependsOn: Infrastructure
-  condition: succeeded()
-  jobs:
-  - job:
+  - job: FunctionApp
+    dependsOn: Infrastructure
+    condition: succeeded()
     displayName: FunctionApp Build and Deploy
     pool:
       vmImage: 'windows-latest'
@@ -42,5 +37,22 @@ stages:
         scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-func.ps1
         arguments:
           -ClientPrefix ${{ variables.ClientPrefix }} `
-          -Env ${{ variables.Env }} `
-          -AadObjectId ${{ variables.AadObjectId }}
+          -Env ${{ variables.Env }}
+  
+  - job: APIManagement
+    dependsOn: FunctionApp
+    condition: succeeded()
+    displayName: APIM Deploy
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - task: AzureCLI@2
+      displayName: AZ CLI - Bicep Deploy
+      inputs:
+        azureSubscription: ${{ variables.azSubscription }}
+        scriptType: 'ps'
+        workingDirectory: $(Build.SourcesDirectory)\Producer
+        scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-apim.ps1
+        arguments:
+          -ResourceGroup ${{ variables.rg }} `
+          -FunctionApp ${{ variables.func }}
