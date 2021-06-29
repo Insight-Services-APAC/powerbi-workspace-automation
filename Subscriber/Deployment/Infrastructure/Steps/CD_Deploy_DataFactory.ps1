@@ -24,7 +24,7 @@ if($env:EnvOpts_CD_Services_DataFactory_Enable -eq "True")
 
         Write-Host "Register ADF MSI in ADLS"
         $storageaccountname =  $env:EnvOpts_CD_ResourceGroup_ResourcePrefix.ToString()+$env:EnvOpts_CD_Services_Storage_ADLS_Name.ToString()
-        $subId = (az account show --subscription 'Visual Studio Enterprise Subscription' --query "id")
+        $subId = (az account show --subscription $env:EnvOpts_CD_ResourceGroup_Subscription --query "id")
         $scope = "/subscriptions/$subId/resourceGroups/$env:EnvOpts_CD_ResourceGroup_Name/providers/Microsoft.Storage/storageAccounts/$storageaccountname"
         
         az role assignment create --assignee $msi --role 'Storage Blob Data Contributor' --scope $scope   

@@ -25,9 +25,9 @@ stages:
       displayName: 'Build TelemetryDB'
       continueOnError: true
       inputs:
-        solution: PowerBITelemetryDB/PowerBITelemetry.sqlproj
+        solution: Subscriber/PowerBITelemetryDB/PowerBITelemetry.sqlproj
 
-    - publish: PowerBITelemetryDB/bin/Debug
+    - publish: Subscriber/PowerBITelemetryDB/bin/Debug
       artifact: sql_telemetrydb
 
   - job: 'deploy_db'
