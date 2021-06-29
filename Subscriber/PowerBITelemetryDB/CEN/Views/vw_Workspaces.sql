@@ -1,6 +1,6 @@
 ﻿Create View [CEN].[vw_Workspaces]
 As
-Select  Id  
+Select  Workspace_ID
        ,Name  
        ,IsReadOnly  
        ,IsOnDedicatedCapacity  

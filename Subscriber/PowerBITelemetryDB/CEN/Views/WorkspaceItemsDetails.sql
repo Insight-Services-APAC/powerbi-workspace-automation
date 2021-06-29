@@ -46,7 +46,7 @@ select
 	,D.[DateRetrieved]                         as Dashboards_DateRetrieved  
 
 from [CEN].[Workspaces] W
-left join [CEN].[Datasets] DSet on W.[Id] =DSet.[Workspace_ID]
-left join [CEN].[DataSources] DSource on W.[Id]= DSource.[WorkspaceID]
-left join [CEN].[Reports] R on  W.[Id]=R.[Workspace_ID]
-left join [CEN].[Dashboards] D on W.[Id]=D.[Workspace_ID]
+left join [CEN].[Datasets] DSet on W.[Workspace_Id] =DSet.[Workspace_ID]
+left join [CEN].[DataSources] DSource on W.[Workspace_Id]= DSource.[WorkspaceID]
+left join [CEN].[Reports] R on  W.[Workspace_Id]=R.[Workspace_ID]
+left join [CEN].[Dashboards] D on W.[Workspace_Id]=D.[Workspace_ID]
