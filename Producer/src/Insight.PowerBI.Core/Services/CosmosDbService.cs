@@ -68,6 +68,8 @@ namespace Insight.PowerBI.Core.Services
 
         public async Task<IList<T>> GetItemsAsync<T>(string containerId, string queryString)
         {
+            if (string.IsNullOrEmpty(queryString))
+                queryString = "SELECT * FROM c";
             var query = new QueryDefinition(queryString);
             return await GetItemsInternalAsync<T>(containerId, query);
         }

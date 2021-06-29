@@ -50,7 +50,7 @@ if ($ApimExtract) {
     .\scripts\apim-extract.ps1 `
         -ResourceGroup $resourceGroup `
         -SourceApim $apimName `
-        -ExtractPath $templates
+        -ExtractPath "apim-test"
 }
 
 if ($FuncDeploy) {

@@ -1,0 +1,10 @@
+variables:
+  azSubscription: sp-apim-ado
+  clientPrefix: wch
+  env: dev
+  aadObjectId: 9fb4af47-1091-4da1-a27c-db0e7f85401c
+  storage: "wchsyddevstapowerbi"
+  apim: "wch-syd-dev-api-powerbi"
+  rg: "wch-syd-dev-arg-powerbi"
+  func: "wch-syd-dev-fun-powerbi"
+  kv: "wch-syd-dev-key-powerbi"
