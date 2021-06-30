@@ -112,7 +112,7 @@ resource funcApp 'Microsoft.Web/sites@2021-01-01' = {
         }
         {
           name: 'AuthenticationConfig:Tenant'
-          value: '362e8191-a703-4ccf-8e0a-68f31eb9d487'
+          value: subscription().tenantId
         }
         {
           name: 'WEBSITE_RUN_FROM_PACKAGE'
