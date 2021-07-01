@@ -17,10 +17,19 @@
     "PolicyXMLSasToken": {
       "value": "REPLACE_ME"
     },
+    "serviceUrl": {
+      "value": {
+        "powerbihsp": null,
+        "powerbihss": null
+      }
+    },
     "NamedValues": {
       "value": {
         "hsssyddevfunpowerbikey": null
       }
+    },
+    "FunctionBackendName": {
+      "type": "string"
     }
   },
   "resources": []
