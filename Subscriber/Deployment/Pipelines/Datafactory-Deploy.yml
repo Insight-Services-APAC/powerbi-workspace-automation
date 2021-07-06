@@ -1,0 +1,29 @@
+trigger: none
+  # branches:
+  #   include:
+  #   - main
+  # paths:
+  #   include:
+  #   - Data Factory/*
+
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+# ---------------------------------------------------------------------------
+# Build artifacts
+- stage: 'build'
+  jobs:
+  # Use this section to pull in or out build jobs
+  - template: Templates/job-copy-datafactory-arm.yml
+    parameters:
+      data_factory_name: 'Data Factory'
+# ---------------------------------------------------------------------------
+# Release to Production
+- template: Templates/stage-deploy-adfarmtemplate.yml
+  parameters:
+    #dependencies: ['uat'] # Used to define any stage dependencies
+    stage_name: 'deploy_adf_prod'
+    variable_template_name: prd-variables
+    run_condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
