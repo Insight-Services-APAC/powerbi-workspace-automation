@@ -7,7 +7,8 @@ jobs:
   steps:
   - bash: |
       mkdir -p "$(Build.ArtifactStagingDirectory)/adf_arm_templates"
-      cp -r "${{ parameters.data_factory_name }}/." "$(Build.ArtifactStagingDirectory)/adf_arm_templates/"
+      $inPath = '${{ parameters.data_factory_name }}/.'
+      cp -r "$inPath" "$(Build.ArtifactStagingDirectory)/adf_arm_templates/"
     displayName: 'Prepare Azure Resource Manager template Build Artifacts'
 
   - publish: '$(Build.ArtifactStagingDirectory)/adf_arm_templates'
