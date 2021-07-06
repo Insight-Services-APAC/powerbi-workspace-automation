@@ -94,7 +94,6 @@
     <Build Include="STG\Tables\Reports.sql" />
     <Build Include="STG\Tables\Workspaces.sql" />
     <Build Include="CEN\Views\vw_WorkspaceItemsDetails.sql" />
-    <Build Include="CEN\Views\WorkspaceItemsDetails.sql" />
     <Build Include="CEN\Views\vw_ActivityLogs.sql" />
     <Build Include="CEN\Views\vw_Workspaces.sql" />
     <Build Include="CEN\Views\vw_Capacities.sql" />
@@ -117,5 +116,10 @@
     <Build Include="Security\CEN.sql" />
     <Build Include="Security\STG.sql" />
     <Build Include="Security\ADF_STG_Role.sql" />
+    <Build Include="CEN\Views\vw_Reports.sql" />
+    <Build Include="CEN\Views\vw_ReportAppItems.sql" />
+    <Build Include="CEN\Views\vw_Datasets.sql" />
+    <Build Include="CEN\Views\vw_Dashboards.sql" />
+    <Build Include="CEN\Views\vw_DashboardAppItems.sql" />
   </ItemGroup>
 </Project>

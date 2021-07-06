@@ -1,0 +1,42 @@
+parameters:
+- name: dependencies
+  type: object
+  default: ['build']
+- name: stage_name
+  type: string
+- name: variable_template_name
+  type: string
+- name: run_condition
+  type: string
+
+stages:
+# ---------------------------------------------------------------------------
+# Release to environment
+# Only execute if PR into Develop
+- stage: ${{ parameters.stage_name }}
+  dependsOn: ${{ parameters.dependencies }}
+  condition: ${{ parameters.run_condition }}
+  variables:
+  - template: ../Variables/${{ parameters.variable_template_name }}.yml
+  - name: kv_base_url
+    value: 'https://${{ Variables.keyVault }}.vault.azure.net/'
+  - name: adls_url
+    value:  'https://${{ Variables.adlsName }}.dfs.core.windows.net'
+
+  jobs:
+  - job:
+    steps:
+    - download: current
+      artifact: adf_arm_templates
+
+    - task: AzureResourceGroupDeployment@2
+      inputs:
+        azureSubscription: ${{ variables.azSubscription }}
+        action: 'Create Or Update Resource Group'
+        resourceGroupName: ${{ variables.resourceGroupName }}
+        location: $(LOCATION)
+        templateLocation: 'Linked artifact'
+        csmFile: '$(Pipeline.Workspace)/adf_arm_templates/arm_template.json'
+        overrideParameters: '-factoryName ${{ variables.dataFactoryName }} -keyvault01_properties_typeProperties_baseUrl ${{ variables.kv_base_url }} -ADLS001_properties_typeProperties_url ${{ variables.adls_url }}'
+        deploymentMode: 'Incremental'
+      displayName: 'Deploy Datafactory with Access Policies'
