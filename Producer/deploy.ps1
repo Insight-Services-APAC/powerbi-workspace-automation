@@ -5,10 +5,10 @@ param (
     [Parameter()] [switch] $InfraDeploy,
     [Parameter()] [switch] $KeyVaultConfig,
     [Parameter()] [switch] $FuncDeploy,
-    [Parameter(Mandatory=$true)] [switch] $clientPrefix="test",
-    [ParameterSet("dev", "tst", "prd")]
-    [Parameter(Mandatory=$true)] [switch] $env="dev",
-    [Parameter()] [switch] $aadObjectId
+    [Parameter()] [string] $clientPrefix="wch",
+    [ValidateSet("dev", "tst", "prd")]
+    [Parameter()] [string] $env = "dev",
+    [Parameter()] [string] $aadObjectId = "9fb4af47-1091-4da1-a27c-db0e7f85401c"
 )
 
 $storage = "${clientPrefix}syd${env}stapowerbi"
@@ -50,7 +50,7 @@ if ($ApimExtract) {
     .\scripts\apim-extract.ps1 `
         -ResourceGroup $resourceGroup `
         -SourceApim $apimName `
-        -ExtractPath $templates
+        -ExtractPath "apim-test"
 }
 
 if ($FuncDeploy) {

@@ -1,17 +1,17 @@
 
 param (
-    [Parameter()] [string] $ResourceGroup = "test-syd-dev-arg-powerbi",
-    [Parameter()] [string] $FunctionApp = "test-syd-dev-fun-powerbi"
+    [Parameter(Mandatory=$true)] [string] $ResourceGroup,
+    [Parameter(Mandatory=$true)] [string] $FunctionApp
 )
 
 
 $out = ".\package"
 $dest = "package.zip"
 
-if ($(Test-Path $out)) {
+if (Test-Path $out) {
     Remove-Item $out -Recurse -Force    
 }
-if ($(Test-File $dest)) {
+if (Test-Path $dest) {
     Remove-Item $dest -Force
 }
 

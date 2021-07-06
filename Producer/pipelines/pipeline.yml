@@ -1,0 +1,65 @@
+
+
+stages:
+- stage: Development
+
+  variables:
+    - template: variables.yml
+
+  jobs:
+  - job: Infrastructure
+    displayName: Infrastructure Deploy
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - task: AzureCLI@2
+      displayName: AZ CLI - Bicep Deploy
+      inputs:
+        azureSubscription: ${{ variables.azSubscription }}
+        scriptType: 'ps'
+        workingDirectory: $(Build.SourcesDirectory)\Producer
+        scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-infra.ps1
+        arguments:
+          -ClientPrefix ${{ variables.clientPrefix }} `
+          -Env ${{ variables.env }} `
+          -AadObjectId ${{ variables.aadObjectId }}
+
+  - job: FunctionApp
+    dependsOn: Infrastructure
+    condition: succeeded()
+    displayName: FunctionApp Build and Deploy
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - task: AzureCLI@2
+      displayName: AZ CLI - Function App Build and Deploy
+      inputs:
+        azureSubscription: ${{ variables.azSubscription }}
+        scriptType: 'ps'
+        workingDirectory: $(Build.SourcesDirectory)\Producer
+        scriptPath: $(Build.SourcesDirectory)\Producer\scripts\deploy-func.ps1
+        arguments:
+          -ResourceGroup ${{ variables.rg }} `
+          -FunctionApp ${{ variables.func }}
+  
+  - job: APIManagement
+    dependsOn: FunctionApp
+    condition: succeeded()
+    displayName: APIM Deploy
+    variables:
+      LOCAL_TEMPLATE_DIRECTORY: $(Build.SourcesDirectory)/Producer/apim
+      APIM_NAME: ${{ variables.apim }}
+      RESOURCE_GROUP: ${{ variables.rg }}
+      STORAGE_ACCOUNT: ${{ variables.storage }}
+      FUNCTION_APP: ${{ variables.func }}
+
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: AzureCLI@2
+      displayName: AZ CLI - APIM ARM Linked Template Deployment
+      inputs:
+        azureSubscription: ${{ variables.azSubscription }}
+        scriptType: 'bash'
+        workingDirectory: $(Build.SourcesDirectory)/Producer
+        scriptPath: $(Build.SourcesDirectory)/Producer/scripts/deploy-apim.sh

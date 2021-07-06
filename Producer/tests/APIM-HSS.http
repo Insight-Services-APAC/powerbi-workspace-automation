@@ -1,4 +1,11 @@
 @subscriptionKey = ??
 
-https://hss-syd-dev-api-powerbi.azure-api.net/powerbi-hss/todo
+POST https://wch-syd-dev-api-powerbi.azure-api.net/powerbi-hss/Subscription
 Ocp-Apim-Subscription-Key: {{subscriptionKey}}
+
+{
+    "id": "wachs",
+    "adminSecurityGroup": "PBI_ADMIN_WACHS",
+    "departmentName": "WA Country Health Services",
+    "workspacePrefix": "WACHS"
+}
