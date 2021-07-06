@@ -1,8 +1,11 @@
 variables:
   azSubscription: wva-Insight-sp
   resourcePrefix: pbiauedev
+  resourceGroupName: PBI_Foundations
 
   keyVault: ${{ lower(variables.resourcePrefix) }}kv02
   sqlServer: ${{ lower(variables.resourcePrefix) }}azsql01.database.windows.net
   sqlAdminUser: AdsAdmin
   dbName: PBITelemetry
+  dataFactoryName: ${{ lower(variables.resourcePrefix) }}adf01
+  adlsName: ${{ lower(variables.resourcePrefix) }}store001
