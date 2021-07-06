@@ -37,6 +37,6 @@ stages:
         location: $(LOCATION)
         templateLocation: 'Linked artifact'
         csmFile: '$(Pipeline.Workspace)/adf_arm_templates/arm_template.json'
-        overrideParameters: '-factoryName ${{ variables.dataFactoryName }} -keyvault01_properties_typeProperties_baseUrl ${{ variables.kv_base_url }} -ADLS001_properties_typeProperties_url ${{ adls_url }}'
+        overrideParameters: '-factoryName ${{ variables.dataFactoryName }} -keyvault01_properties_typeProperties_baseUrl ${{ variables.kv_base_url }} -ADLS001_properties_typeProperties_url ${{ variables.adls_url }}'
         deploymentMode: 'Incremental'
       displayName: 'Deploy Datafactory with Access Policies'
