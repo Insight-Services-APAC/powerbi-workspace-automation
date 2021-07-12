@@ -39,7 +39,7 @@ FUNC_KEY=$(az functionapp keys list --name $FUNCTION_APP \
     --query "functionKeys.default" -o tsv)
 
 NAMED_VALUES='{"hsssyddevfunpowerbikey": "'$FUNC_KEY'"}'
-
+SERVICE_URL='{"powerbihsp": null,"powerbihss": null}'
 
 echo "*********DEPLOYMENT*********"
 
@@ -55,5 +55,6 @@ az deployment group create \
   --parameters "PolicyXMLBaseUrl=$ROOT_FILE_URL/policies" \
   --parameters "PolicyXMLSasToken=?$SAS" \
   --parameters NamedValues="$NAMED_VALUES" \
+  --parameters serviceUrl="$SERVICE_URL" \
   --parameters "FunctionBackendName=$FUNCTION_APP"
 
