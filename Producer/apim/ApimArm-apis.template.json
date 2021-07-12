@@ -10,6 +10,9 @@
     },
     "PolicyXMLBaseUrl": {
       "type": "string"
+    },
+    "serviceUrl": {
+      "type": "object"
     }
   },
   "resources": [
@@ -27,6 +30,7 @@
         "isCurrent": true,
         "subscriptionRequired": true,
         "displayName": "PowerBI HSP",
+        "serviceUrl": "[parameters('serviceUrl').powerbihsp]",
         "path": "powerbi-hsp",
         "protocols": [
           "https"
@@ -43,8 +47,13 @@
         "document": {
           "components": {
             "schemas": {
-              "WorkspaceActivitiesGetRequest": {
-                "x-apim-inline": true
+              "WorkspaceRequest": {
+                "type": "object",
+                "properties": {
+                  "workSpaceName": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }
@@ -102,9 +111,17 @@
         "templateParameters": [],
         "description": "Workspace",
         "request": {
+          "description": "The workspace name suffix. Prefix will be set by the Subscription.",
           "queryParameters": [],
           "headers": [],
-          "representations": []
+          "representations": [
+            {
+              "contentType": "application/json",
+              "sample": "{\r\n  \"workSpaceName\": \"string\"\r\n}",
+              "schemaId": "60d3ecca3a838a0dc0c96a1b",
+              "typeName": "WorkspaceRequest"
+            }
+          ]
         },
         "responses": [
           {
@@ -121,26 +138,27 @@
           }
         ],
         "displayName": "Workspace",
-        "method": "PUT",
+        "method": "POST",
         "urlTemplate": "/Workspace"
       },
-      "name": "[concat(parameters('ApimServiceName'), '/powerbi-hsp/put-workspace')]",
+      "name": "[concat(parameters('ApimServiceName'), '/powerbi-hsp/post-workspace')]",
       "type": "Microsoft.ApiManagement/service/apis/operations",
       "apiVersion": "2021-01-01-preview",
       "dependsOn": [
-        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'powerbi-hsp')]"
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'powerbi-hsp')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'powerbi-hsp', '60d3ecca3a838a0dc0c96a1b')]"
       ]
     },
     {
       "properties": {
-        "value": "[concat(parameters('PolicyXMLBaseUrl'), '/powerbi-hsp-put-workspace-operationPolicy.xml', parameters('PolicyXMLSasToken'))]",
+        "value": "[concat(parameters('PolicyXMLBaseUrl'), '/powerbi-hsp-post-workspace-operationPolicy.xml', parameters('PolicyXMLSasToken'))]",
         "format": "rawxml-link"
       },
-      "name": "[concat(parameters('ApimServiceName'), '/powerbi-hsp/put-workspace/policy')]",
+      "name": "[concat(parameters('ApimServiceName'), '/powerbi-hsp/post-workspace/policy')]",
       "type": "Microsoft.ApiManagement/service/apis/operations/policies",
       "apiVersion": "2021-01-01-preview",
       "dependsOn": [
-        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'powerbi-hsp', 'put-workspace')]"
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'powerbi-hsp', 'post-workspace')]"
       ]
     },
     {
@@ -196,7 +214,14 @@
         "request": {
           "queryParameters": [],
           "headers": [],
-          "representations": []
+          "representations": [
+            {
+              "contentType": "application/json",
+              "sample": "{\r\n  \"workSpaceName\": \"string\"\r\n}",
+              "schemaId": "60d3ecca3a838a0dc0c96a1b",
+              "typeName": "WorkspaceRequest"
+            }
+          ]
         },
         "responses": [
           {
@@ -213,26 +238,27 @@
           }
         ],
         "displayName": "Workspace",
-        "method": "POST",
+        "method": "PUT",
         "urlTemplate": "/Workspace"
       },
-      "name": "[concat(parameters('ApimServiceName'), '/powerbi-hsp/post-workspace')]",
+      "name": "[concat(parameters('ApimServiceName'), '/powerbi-hsp/put-workspace')]",
       "type": "Microsoft.ApiManagement/service/apis/operations",
       "apiVersion": "2021-01-01-preview",
       "dependsOn": [
-        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'powerbi-hsp')]"
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'powerbi-hsp')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'powerbi-hsp', '60d3ecca3a838a0dc0c96a1b')]"
       ]
     },
     {
       "properties": {
-        "value": "[concat(parameters('PolicyXMLBaseUrl'), '/powerbi-hsp-post-workspace-operationPolicy.xml', parameters('PolicyXMLSasToken'))]",
+        "value": "[concat(parameters('PolicyXMLBaseUrl'), '/powerbi-hsp-put-workspace-operationPolicy.xml', parameters('PolicyXMLSasToken'))]",
         "format": "rawxml-link"
       },
-      "name": "[concat(parameters('ApimServiceName'), '/powerbi-hsp/post-workspace/policy')]",
+      "name": "[concat(parameters('ApimServiceName'), '/powerbi-hsp/put-workspace/policy')]",
       "type": "Microsoft.ApiManagement/service/apis/operations/policies",
       "apiVersion": "2021-01-01-preview",
       "dependsOn": [
-        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'powerbi-hsp', 'post-workspace')]"
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'powerbi-hsp', 'put-workspace')]"
       ]
     },
     {
@@ -351,7 +377,7 @@
     },
     {
       "properties": {
-        "description": "Import from \"hss-syd-dev-fun-powerbi\" Function App",
+        "description": "Creates a Subscription in Cosmos DB\nThe id must match the API Management Subscription name\nThe aadObjectId must be a valid AD Security Group Name. This will be used for setting the Power BI Workspace administrator",
         "authenticationSettings": {
           "subscriptionKeyRequired": false
         },
@@ -363,6 +389,7 @@
         "isCurrent": true,
         "subscriptionRequired": true,
         "displayName": "PowerBI HSS",
+        "serviceUrl": "[parameters('serviceUrl').powerbihss]",
         "path": "powerbi-hss",
         "protocols": [
           "https"
@@ -375,6 +402,46 @@
     },
     {
       "properties": {
+        "contentType": "application/vnd.oai.openapi.components+json",
+        "document": {
+          "components": {
+            "schemas": {
+              "SubscriptionRequest": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "adminSecurityGroup": {
+                    "type": "string"
+                  },
+                  "departmentName": {
+                    "type": "string"
+                  },
+                  "workspacePrefix": {
+                    "type": "string"
+                  }
+                },
+                "example": {
+                  "id": "wachs",
+                  "adminSecurityGroup": "PBI_ADMIN_WACHS",
+                  "departmentName": "WA Country Health Services",
+                  "workspacePrefix": "WACHS"
+                }
+              }
+            }
+          }
+        }
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/powerbi-hss/1625096832333')]",
+      "type": "Microsoft.ApiManagement/service/apis/schemas",
+      "apiVersion": "2021-01-01-preview",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'powerbi-hss')]"
+      ]
+    },
+    {
+      "properties": {
         "templateParameters": [],
         "description": "",
         "request": {
@@ -382,7 +449,14 @@
           "headers": [],
           "representations": []
         },
-        "responses": [],
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "",
+            "headers": [],
+            "representations": []
+          }
+        ],
         "displayName": "Activities",
         "method": "GET",
         "urlTemplate": "/Activities"
@@ -415,7 +489,14 @@
           "headers": [],
           "representations": []
         },
-        "responses": [],
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "",
+            "headers": [],
+            "representations": []
+          }
+        ],
         "displayName": "ActivitiesExtract",
         "method": "GET",
         "urlTemplate": "/ActivitiesExtract"
@@ -446,9 +527,23 @@
         "request": {
           "queryParameters": [],
           "headers": [],
-          "representations": []
+          "representations": [
+            {
+              "contentType": "application/json",
+              "sample": "{\r\n  \"id\": \"WACHS\",\r\n  \"adminSecurityGroup\": \"PBI_ADMIN_WACHS\",\r\n  \"departmentName\": \"WA Country Health Services\",\r\n  \"workspacePrefix\": \"WACHS\"\r\n}",
+              "schemaId": "1625096832333",
+              "typeName": "SubscriptionRequest"
+            }
+          ]
         },
-        "responses": [],
+        "responses": [
+          {
+            "statusCode": 201,
+            "description": "",
+            "headers": [],
+            "representations": []
+          }
+        ],
         "displayName": "Subscription",
         "method": "POST",
         "urlTemplate": "/Subscription"
@@ -457,7 +552,8 @@
       "type": "Microsoft.ApiManagement/service/apis/operations",
       "apiVersion": "2021-01-01-preview",
       "dependsOn": [
-        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'powerbi-hss')]"
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'powerbi-hss')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'powerbi-hss', '1625096832333')]"
       ]
     },
     {
@@ -481,7 +577,14 @@
           "headers": [],
           "representations": []
         },
-        "responses": [],
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "",
+            "headers": [],
+            "representations": []
+          }
+        ],
         "displayName": "Subscriptions",
         "method": "GET",
         "urlTemplate": "/Subscriptions"
@@ -514,7 +617,14 @@
           "headers": [],
           "representations": []
         },
-        "responses": [],
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "",
+            "headers": [],
+            "representations": []
+          }
+        ],
         "displayName": "WorkspacesExtract",
         "method": "GET",
         "urlTemplate": "/WorkspacesExtract"

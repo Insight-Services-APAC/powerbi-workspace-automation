@@ -44,8 +44,8 @@ if ($ApimDeploy) {
 }
 
 if ($ApimExtract) {
-    $resourceGroup = "hss-syd-dev-arg-powerbi"
-    $apimName = "hss-syd-dev-api-powerbi"
+    $resourceGroup = "wch-syd-dev-arg-powerbi"
+    $apimName = "wch-syd-dev-api-powerbi"
 
     .\scripts\apim-extract.ps1 `
         -ResourceGroup $resourceGroup `

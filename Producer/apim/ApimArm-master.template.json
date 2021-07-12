@@ -32,6 +32,12 @@
         "description": "The SAS token for the URL of the policy container"
       }
     },
+    "serviceUrl": {
+      "type": "object",
+      "metadata": {
+        "description": "Service url for each Api"
+      }
+    },
     "NamedValues": {
       "type": "object",
       "metadata": {
@@ -167,6 +173,9 @@
           },
           "PolicyXMLSasToken": {
             "value": "[parameters('PolicyXMLSasToken')]"
+          },
+          "serviceUrl": {
+            "value": "[parameters('serviceUrl')]"
           }
         }
       },

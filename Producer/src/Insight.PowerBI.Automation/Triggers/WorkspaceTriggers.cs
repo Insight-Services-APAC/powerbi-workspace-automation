@@ -38,6 +38,10 @@ namespace Insight.PBIAutomation.Triggers
             {
                 IActionResult result = new OkResult();
                 string workspaceName = await GetWorkspaceNameFromRequestAsync(req, subscriptionItem);
+                if (string.IsNullOrEmpty(workspaceName))
+                {
+                    return new BadRequestObjectResult(new { Message = "Workspace name was not provided." });
+                }
                 
                 switch (req.Method)
                 {
