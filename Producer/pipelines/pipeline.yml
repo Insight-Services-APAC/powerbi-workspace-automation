@@ -1,4 +1,10 @@
-
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+      - Producer
 
 stages:
 - stage: Development

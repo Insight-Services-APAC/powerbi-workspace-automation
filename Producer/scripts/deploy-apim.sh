@@ -57,4 +57,3 @@ az deployment group create \
   --parameters NamedValues="$NAMED_VALUES" \
   --parameters serviceUrl="$SERVICE_URL" \
   --parameters "FunctionBackendName=$FUNCTION_APP"
-
