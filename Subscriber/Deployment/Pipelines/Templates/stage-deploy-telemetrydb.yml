@@ -56,3 +56,17 @@ stages:
         SqlUsername: ${{ variables.sqlAdminUser }}
         SqlPassword: '$(ASQL-PASSW)'
         DacpacFile: '$(Pipeline.Workspace)/sql_telemetrydb/PowerBITelemetry.dacpac'
+
+    - task: PowerShell@2
+      displayName: 'Add ADF MSI to SQL'
+      inputs:
+        targetType: 'inline'
+        script: |
+          # MSI Access Azure Data Factory on Azure SQL Staging DB
+                  $sqlcommand = "
+                  CREATE USER [${{ variables.dataFactoryName }}] FROM EXTERNAL PROVIDER;
+                  ALTER ROLE db_owner ADD MEMBER ${{ variables.dataFactoryName }};
+                  GO"
+          
+                  $token=$(az account get-access-token --resource=https://database.windows.net --query accessToken --output tsv)
+                  Invoke-Sqlcmd -ServerInstance ${{ variables.sqlServer }} -Database ${{ variables.dbName }} -AccessToken $token -query $sqlcommand
