@@ -68,5 +68,4 @@ stages:
                   ALTER ROLE db_owner ADD MEMBER ${{ variables.dataFactoryName }};
                   GO"
           
-                  $token= (Get-AzAccessToken -ResourceUrl https://database.windows.net).Token
-                  Invoke-Sqlcmd -ServerInstance ${{ variables.sqlServer }} -Database ${{ variables.dbName }} -AccessToken $token -query $sqlcommand
+                  Invoke-Sqlcmd -ServerInstance ${{ variables.sqlServer }} -Database ${{ variables.dbName }} -Username ${{ variables.sqlAdminUser }} -Password $(ASQL-PASSW)  -query $sqlcommand
