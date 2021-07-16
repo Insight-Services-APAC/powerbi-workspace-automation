@@ -31,6 +31,7 @@ var sku = 'standard'
 var ASQLSecretName = 'ASQL-PASSW'
 var ASQLADFLSSecretName = 'ADF-LS-ASQL-PBITelemetry'
 var HSSAPIKey = 'HSS-API-Key'
+var HSPAPIKey = 'HSP-API-Key'
 
 
 resource keyvault 'Microsoft.KeyVault/vaults@2019-09-01' = {
@@ -78,4 +79,14 @@ resource secret3 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
   dependsOn: [
     keyvault
   ]
+}
+
+resource secret4 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
+    name: '${vaultName}/${HSPAPIKey}'
+    properties: {
+      value: '' 
+    }
+    dependsOn: [
+      keyvault
+    ]
 }

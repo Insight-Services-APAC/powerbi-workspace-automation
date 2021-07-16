@@ -1,7 +1,6 @@
 ## Prerequisites
 - AZ CLI
 - AZ PowerShell Module
-- DOTNET SDK
 - VS Code
 - Bicep (az bicep install)
 
@@ -17,8 +16,8 @@
 
 
 ### Infrastructure Deployment
-
-- Open either the "Development.json" or "Production.json" file saved uder the ".\Deployment\Infrastrucutre\Environments"    folder
+There is an Azure pipeline for the Infrastrucutre deployment, but the following steps provide a manual approach if required
+- Open either the "Development.json" or "Production.json" file saved uder the ".Subscriber\Deployment\Infrastrucutre\Environments" folder
 - Update the relevant settings for the Azure environment and resource settings to be applied for the deployment (This is a once off exercise per environment unless settings change down the track)
 - Once the config is set, navigate to the root of the solution folder
 - Using PowerShell or the VSCode Terminal execute the following: "./Subscriber/Deployment/Infrastructure/Deploy-AzureResource.ps1 -specify environment-"
@@ -30,6 +29,7 @@
 - Manual via Visual Studio or via Azure Pipeline
 
 ### ADF Deployment
+There is an Azure pipeline for ADF deployment, but the following steps provide a manual approach if required
 - This step is currently done via manual ARM template deployment after the infra deployment.
 - Open the ADF web portal and select "Manage" and then "ARM Template" from the navigation.
 - Select "Import ARM Template" which will open a seperate portal window to run an ARM Template.
@@ -41,5 +41,8 @@
 - Validate the creation of these components after completion.
 
 ## Post-Deployment
+- Verify Azure resoure creation (Azure Portal)
+- Verify Telemetry database object deployment (SSMS)
+- Verify ADF content deployment (ADF Studio)
 - Set Keyvault secret values
 - Test ADF linked service connections and pipelines
