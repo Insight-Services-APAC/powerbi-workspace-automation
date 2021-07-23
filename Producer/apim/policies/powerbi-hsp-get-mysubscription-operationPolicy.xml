@@ -1,7 +1,7 @@
 <policies>
 	<inbound>
 		<base />
-		<set-backend-service id="apim-generated-policy" backend-id="wch-syd-dev-fun-powerbi" />
+		<set-backend-service id="apim-generated-policy" backend-id="test-syd-dev-fun-powerbi" />
 	</inbound>
 	<backend>
 		<base />
